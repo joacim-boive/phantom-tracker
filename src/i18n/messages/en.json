@@ -1,0 +1,126 @@
+{
+  "app": {
+    "name": "Phantom Tracker",
+    "description": "Track phantom pain patterns and discover correlations"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "addEntry": "Add Entry",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "currentConditions": "Current Conditions",
+    "painOverview": "Pain Overview",
+    "recentEntries": "Recent Entries",
+    "painTimeline": "Pain Timeline",
+    "correlationInsights": "Correlation Insights",
+    "last30Days": "Last 30 days",
+    "entries": "entries",
+    "avgPain": "Avg pain",
+    "mostAffected": "Most affected"
+  },
+  "entry": {
+    "title": "Log Pain Entry",
+    "selectPoint": "Select pain point on the model",
+    "painLevel": "Pain Level",
+    "submit": "Log Pain Entry",
+    "quickAdd": "Quick Add",
+    "quickAddDescription": "Add entry with same location and pain level as last time",
+    "success": "Pain entry logged successfully",
+    "error": "Failed to log pain entry"
+  },
+  "entryCard": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this entry?"
+  },
+  "weather": {
+    "temperature": "Temperature",
+    "feelsLike": "Feels like",
+    "pressure": "Pressure",
+    "humidity": "Humidity",
+    "wind": "Wind",
+    "clouds": "Clouds",
+    "aqi": "Air Quality",
+    "rising": "Rising",
+    "falling": "Falling",
+    "stable": "Stable"
+  },
+  "lunar": {
+    "title": "Lunar",
+    "phase": "Phase",
+    "illumination": "Illumination",
+    "distance": "Distance",
+    "approaching": "Approaching",
+    "receding": "Receding"
+  },
+  "geomagnetic": {
+    "title": "Geomagnetic",
+    "kpIndex": "Kp Index",
+    "stormLevel": "Storm Level",
+    "quiet": "Quiet",
+    "unsettled": "Unsettled",
+    "active": "Active",
+    "storm": "Storm"
+  },
+  "solar": {
+    "title": "Solar",
+    "xrayFlux": "X-ray Flux",
+    "flareProbability": "Flare Probability"
+  },
+  "tidal": {
+    "title": "Tidal",
+    "currentHeight": "Current Height",
+    "nextHigh": "Next High",
+    "nextLow": "Next Low",
+    "rising": "Rising",
+    "falling": "Falling"
+  },
+  "temporal": {
+    "dayLength": "Day Length",
+    "sunrise": "Sunrise",
+    "sunset": "Sunset"
+  },
+  "insights": {
+    "noData": "Not enough data for insights yet",
+    "keepTracking": "Keep tracking to discover patterns"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "painLevels": {
+    "1": "Minimal",
+    "2": "Very Mild",
+    "3": "Mild",
+    "4": "Moderate",
+    "5": "Moderate",
+    "6": "Significant",
+    "7": "Severe",
+    "8": "Very Severe",
+    "9": "Intense",
+    "10": "Extreme"
+  },
+  "footRegions": {
+    "heel": "Heel",
+    "arch": "Arch",
+    "ball": "Ball of Foot",
+    "big-toe": "Big Toe",
+    "second-toe": "Second Toe",
+    "third-toe": "Third Toe",
+    "fourth-toe": "Fourth Toe",
+    "little-toe": "Little Toe",
+    "inner-ankle": "Inner Ankle",
+    "outer-ankle": "Outer Ankle",
+    "top-of-foot": "Top of Foot",
+    "sole": "Sole"
+  }
+}
