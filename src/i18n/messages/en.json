@@ -3,6 +3,101 @@
     "name": "Phantom Tracker",
     "description": "Track phantom pain patterns and discover correlations"
   },
+  "conditions": {
+    "aboutTitle": "About {condition}",
+    "currentValue": "Current Reading",
+    "noCurrentData": "Unable to fetch current data",
+    "historicalData": "Historical Data",
+    "noData": "No data available yet",
+    "noDataHint": "Log pain entries to see historical trends",
+    "noPainDataYet": "Log pain entries to see correlations with this condition",
+    "currentReading": "Current",
+    "loadingHistory": "Loading historical data...",
+    "noHistoricalApiHint": "Historical data not available for this condition type",
+    "avgCondition": "Average",
+    "avgPain": "Avg Pain",
+    "dataPoints": "Days",
+    "painLevel": "Pain Level",
+    "lowPain": "Low (1-3)",
+    "mediumPain": "Medium (4-6)",
+    "highPain": "High (7-10)",
+    "timeRange": {
+      "7d": "7 Days",
+      "30d": "30 Days",
+      "90d": "90 Days",
+      "all": "All"
+    },
+    "temperature": {
+      "description": "Temperature can significantly affect phantom pain. Many amputees report increased pain during cold weather due to vasoconstriction, while others experience relief. Body temperature regulation is closely linked to nerve sensitivity.",
+      "fact1": "Cold temperatures can cause blood vessels to constrict, potentially increasing nerve sensitivity",
+      "fact2": "Rapid temperature changes are often more impactful than steady temperatures",
+      "fact3": "The residual limb may be more sensitive to temperature due to altered circulation",
+      "fact4": "Heat therapy is commonly used to help manage phantom pain symptoms"
+    },
+    "pressure": {
+      "description": "Barometric pressure changes are one of the most commonly reported triggers for phantom pain. Low pressure systems, often associated with storms, can cause tissue expansion that may affect nerve sensitivity.",
+      "fact1": "Falling pressure often precedes increased pain reports in many amputees",
+      "fact2": "Pressure changes as small as 10 hPa can potentially trigger symptoms",
+      "fact3": "The scar tissue and residual limb may be more sensitive to pressure changes",
+      "fact4": "High altitude locations experience lower baseline atmospheric pressure"
+    },
+    "humidity": {
+      "description": "Humidity levels can affect joint and tissue comfort. High humidity may cause swelling and discomfort, while very low humidity can lead to skin dryness and irritation on the residual limb.",
+      "fact1": "High humidity can increase tissue swelling and pressure on nerves",
+      "fact2": "Humid conditions may affect prosthetic fit and comfort",
+      "fact3": "Low humidity can cause skin irritation on the residual limb",
+      "fact4": "Optimal comfort is often reported at moderate humidity levels (40-60%)"
+    },
+    "wind": {
+      "description": "Wind affects the perceived temperature and can cause rapid cooling of exposed skin. Strong winds combined with cold temperatures create wind chill effects that may trigger pain responses.",
+      "fact1": "Wind chill can make temperatures feel significantly colder",
+      "fact2": "Cold wind on the residual limb can trigger temperature-related pain",
+      "fact3": "Protecting the limb from wind exposure may help reduce symptoms",
+      "fact4": "Sudden gusts can cause unexpected temperature changes"
+    },
+    "lunar": {
+      "description": "The lunar cycle has been historically associated with various health phenomena. While scientific evidence is limited, some individuals report patterns in their pain that correlate with moon phases.",
+      "fact1": "The full moon may affect sleep patterns, which can influence pain perception",
+      "fact2": "Lunar gravity affects ocean tides and may have subtle effects on body fluids",
+      "fact3": "The moon's illumination changes over a 29.5-day cycle",
+      "fact4": "Tracking lunar patterns can help identify personal correlations"
+    },
+    "geomagnetic": {
+      "description": "Geomagnetic activity from solar storms can affect Earth's magnetic field. Some research suggests that sensitive individuals may experience physiological responses to geomagnetic disturbances.",
+      "fact1": "The Kp index measures geomagnetic disturbance on a 0-9 scale",
+      "fact2": "Solar storms can cause fluctuations in Earth's magnetic field",
+      "fact3": "Some studies link geomagnetic storms to increased pain reports",
+      "fact4": "Geomagnetic quiet periods (Kp 0-2) are the most common conditions"
+    },
+    "solar": {
+      "description": "Solar activity includes phenomena like solar flares and coronal mass ejections. These events release electromagnetic radiation that reaches Earth and may affect biological systems.",
+      "fact1": "Solar flares are classified by intensity: A, B, C, M, and X classes",
+      "fact2": "X-class flares are the most powerful and can affect Earth systems",
+      "fact3": "Solar activity follows an approximately 11-year cycle",
+      "fact4": "Increased solar activity correlates with more frequent geomagnetic storms"
+    },
+    "tidal": {
+      "description": "Tidal patterns are primarily driven by lunar and solar gravitational forces. Some individuals report that their symptoms follow tidal rhythms, particularly those living near coastal areas.",
+      "fact1": "Tides follow a roughly 12-hour cycle with two high and low tides daily",
+      "fact2": "Spring tides occur during full and new moons with the highest variation",
+      "fact3": "Neap tides during quarter moons have the smallest tidal range",
+      "fact4": "Tidal gravitational effects extend beyond just ocean waters"
+    },
+    "sunrise": {
+      "description": "Sunrise marks the beginning of daylight and triggers the body's cortisol awakening response. The timing of sunrise varies throughout the year and affects circadian rhythms.",
+      "fact1": "Cortisol levels naturally peak around sunrise, affecting pain perception",
+      "fact2": "Morning stiffness and pain are common complaints for many conditions",
+      "fact3": "Light exposure at sunrise helps regulate the body's internal clock",
+      "fact4": "Seasonal changes in sunrise time can affect sleep patterns"
+    },
+    "sunset": {
+      "description": "Sunset triggers the body's transition to nighttime physiology. The reduction in light signals melatonin production, which affects sleep quality and pain sensitivity.",
+      "fact1": "Pain perception often increases in the evening hours",
+      "fact2": "Reduced activity after sunset may increase awareness of pain",
+      "fact3": "The body's natural pain-relief hormones follow circadian patterns",
+      "fact4": "Evening pain may be influenced by daily fatigue accumulation"
+    }
+  },
   "navigation": {
     "dashboard": "Dashboard",
     "addEntry": "Add Entry",

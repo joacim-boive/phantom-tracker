@@ -104,3 +104,47 @@ SELECT
 FROM pain_entries
 GROUP BY pain_point_name
 ORDER BY entry_count DESC;
+
+-- ============================================
+-- Weather Cache Table
+-- Caches historical weather data from OpenWeather API
+-- to reduce API calls (historical data never changes)
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS weather_cache (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  
+  -- Location key: lat,lon rounded to 2 decimals (approx 1km precision)
+  location_key TEXT NOT NULL,
+  
+  -- The date for this weather data
+  date DATE NOT NULL,
+  
+  -- Weather data fields
+  temperature FLOAT NOT NULL,
+  feels_like FLOAT NOT NULL,
+  pressure INTEGER NOT NULL,
+  humidity INTEGER NOT NULL,
+  wind_speed FLOAT NOT NULL,
+  weather_description TEXT,
+  clouds INTEGER,
+  
+  -- Metadata
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  
+  -- Unique constraint: one entry per location per date
+  UNIQUE(location_key, date)
+);
+
+-- Index for fast lookups by location and date range
+CREATE INDEX IF NOT EXISTS idx_weather_cache_location_date 
+  ON weather_cache(location_key, date);
+
+-- RLS for weather cache (allow all access - shared cache)
+ALTER TABLE weather_cache ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all access to weather cache"
+  ON weather_cache
+  FOR ALL
+  USING (true)
+  WITH CHECK (true);
