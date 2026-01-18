@@ -37,9 +37,14 @@ export function FootScene({
 }: FootSceneProps) {
   const controlsRef = useRef<OrbitControlsType>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
 
   const handleModelLoad = useCallback(() => {
     setIsLoading(false);
+  }, []);
+
+  const handleHoverChange = useCallback((regionName: string | null) => {
+    setHoveredRegion(regionName);
   }, []);
 
   return (
@@ -50,7 +55,7 @@ export function FootScene({
         </div>
       )}
       <Canvas
-        camera={{ position: [0.7, 0.5, 1.0], fov: 40 }}
+        camera={{ position: [0.4, 0.55, -0.6], fov: 32 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
         className="touch-none"
@@ -73,6 +78,8 @@ export function FootScene({
           <FootModel
             onPointSelect={onPointSelect}
             onLoad={handleModelLoad}
+            onHoverChange={handleHoverChange}
+            selectedRegionId={selectedPoint?.regionId}
           />
 
           {/* Selected point marker */}
@@ -111,15 +118,22 @@ export function FootScene({
           ref={controlsRef}
           enablePan={false}
           enableZoom={true}
-          minDistance={0.8}
-          maxDistance={3}
+          minDistance={0.5}
+          maxDistance={2}
           minPolarAngle={Math.PI / 6}
-          maxPolarAngle={Math.PI / 2}
+          maxPolarAngle={Math.PI / 2.2}
           autoRotate={autoRotate}
           autoRotateSpeed={0.5}
-          target={[0, 0.1, 0]}
+          target={[0, 0, 0.05]}
         />
       </Canvas>
+
+      {/* Tooltip showing hovered region */}
+      {hoveredRegion && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 text-sm font-medium text-foreground bg-background/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-border animate-in fade-in-0 zoom-in-95 duration-150">
+          {hoveredRegion}
+        </div>
+      )}
 
       {/* Instructions overlay */}
       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs text-muted-foreground bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full">

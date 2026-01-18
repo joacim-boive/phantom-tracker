@@ -110,17 +110,10 @@
     "10": "Extreme"
   },
   "footRegions": {
-    "heel": "Heel",
+    "ball-inner": "Inner Ball",
+    "ball-center": "Center Ball",
+    "ball-outer": "Outer Ball",
     "arch": "Arch",
-    "ball": "Ball of Foot",
-    "big-toe": "Big Toe",
-    "second-toe": "Second Toe",
-    "third-toe": "Third Toe",
-    "fourth-toe": "Fourth Toe",
-    "little-toe": "Little Toe",
-    "inner-ankle": "Inner Ankle",
-    "outer-ankle": "Outer Ankle",
-    "top-of-foot": "Top of Foot",
-    "sole": "Sole"
+    "heel": "Heel"
   }
 }

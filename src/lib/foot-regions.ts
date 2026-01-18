@@ -1,80 +1,56 @@
-import type { FootRegion, PainPoint } from "@/types";
+import type { FootRegion, PainPoint, FootBlock } from "@/types";
 
-// Anatomical regions of the foot for pain point labeling
-export const FOOT_REGIONS: FootRegion[] = [
+/**
+ * Schematic foot block definitions
+ * Layout (top view):
+ * 
+ *   [BALL-INNER] [BALL-CENTER] [BALL-OUTER]   <- Ball of Foot area
+ *              [      ARCH      ]             <- Arch area
+ *              [      HEEL      ]             <- Heel area
+ */
+export const FOOT_BLOCKS: FootBlock[] = [
+  // === BALL OF FOOT - Three square blocks ===
   {
-    id: "heel",
-    name: "Heel",
-    center: { x: 0, y: 0.1, z: -0.4 },
-    radius: 0.15,
+    id: "ball-inner",
+    name: "Inner Ball",
+    position: { x: 0.12, y: 0, z: 0.35 },
+    size: { width: 0.11, height: 0.08, depth: 0.14 },
   },
+  {
+    id: "ball-center",
+    name: "Center Ball",
+    position: { x: 0, y: 0, z: 0.38 },
+    size: { width: 0.11, height: 0.08, depth: 0.14 },
+  },
+  {
+    id: "ball-outer",
+    name: "Outer Ball",
+    position: { x: -0.12, y: 0, z: 0.35 },
+    size: { width: 0.11, height: 0.08, depth: 0.14 },
+  },
+  // === ARCH - Rectangular block ===
   {
     id: "arch",
     name: "Arch",
-    center: { x: 0, y: 0.05, z: 0 },
-    radius: 0.2,
+    position: { x: 0, y: 0, z: 0.08 },
+    size: { width: 0.18, height: 0.08, depth: 0.28 },
   },
+  // === HEEL - Square block (slightly wider) ===
   {
-    id: "ball",
-    name: "Ball of Foot",
-    center: { x: 0, y: 0.08, z: 0.35 },
-    radius: 0.18,
-  },
-  {
-    id: "big-toe",
-    name: "Big Toe",
-    center: { x: 0.08, y: 0.05, z: 0.55 },
-    radius: 0.08,
-  },
-  {
-    id: "second-toe",
-    name: "Second Toe",
-    center: { x: 0.02, y: 0.05, z: 0.6 },
-    radius: 0.05,
-  },
-  {
-    id: "third-toe",
-    name: "Third Toe",
-    center: { x: -0.03, y: 0.05, z: 0.58 },
-    radius: 0.05,
-  },
-  {
-    id: "fourth-toe",
-    name: "Fourth Toe",
-    center: { x: -0.08, y: 0.05, z: 0.55 },
-    radius: 0.05,
-  },
-  {
-    id: "little-toe",
-    name: "Little Toe",
-    center: { x: -0.12, y: 0.05, z: 0.5 },
-    radius: 0.05,
-  },
-  {
-    id: "inner-ankle",
-    name: "Inner Ankle",
-    center: { x: 0.12, y: 0.2, z: -0.3 },
-    radius: 0.1,
-  },
-  {
-    id: "outer-ankle",
-    name: "Outer Ankle",
-    center: { x: -0.12, y: 0.2, z: -0.3 },
-    radius: 0.1,
-  },
-  {
-    id: "top-of-foot",
-    name: "Top of Foot",
-    center: { x: 0, y: 0.15, z: 0.15 },
-    radius: 0.2,
-  },
-  {
-    id: "sole",
-    name: "Sole",
-    center: { x: 0, y: -0.02, z: 0 },
-    radius: 0.25,
+    id: "heel",
+    name: "Heel",
+    position: { x: 0, y: 0, z: -0.22 },
+    size: { width: 0.22, height: 0.1, depth: 0.18 },
   },
 ];
+
+// Legacy FOOT_REGIONS for backwards compatibility (maps to block centers)
+export const FOOT_REGIONS: FootRegion[] = FOOT_BLOCKS.map((block) => ({
+  id: block.id,
+  name: block.name,
+  center: block.position,
+  radius: Math.max(block.size.width, block.size.depth) / 2,
+}));
 
 /**
  * Find the closest anatomical region to a given 3D point

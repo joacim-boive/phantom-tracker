@@ -4,6 +4,7 @@ export interface PainPoint {
   y: number;
   z: number;
   name: string;
+  regionId?: string; // The unique ID of the selected foot region/block
 }
 
 export interface PainEntry {
@@ -100,6 +101,14 @@ export interface FootRegion {
   name: string;
   center: { x: number; y: number; z: number };
   radius: number;
+}
+
+// Schematic foot block definition
+export interface FootBlock {
+  id: string;
+  name: string;
+  position: { x: number; y: number; z: number };
+  size: { width: number; height: number; depth: number };
 }
 
 // Correlation types
