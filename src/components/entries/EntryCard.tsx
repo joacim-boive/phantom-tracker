@@ -6,7 +6,7 @@ import { format, isToday, isYesterday } from "date-fns";
 import { 
   Cloud, 
   Moon, 
-  Zap, 
+  Magnet, 
   Pencil, 
   Trash2,
   ChevronDown,
@@ -186,7 +186,7 @@ export function EntryCard({ entry, onEdit, onDelete }: EntryCardProps) {
                   {/* Geomagnetic */}
                   <div className="space-y-1">
                     <div className="flex items-center gap-1 text-geomagnetic">
-                      <Zap className="w-4 h-4" />
+                      <Magnet className="w-4 h-4" />
                       <span className="font-medium">{t("geomagnetic.title")}</span>
                     </div>
                     <div className="text-muted-foreground">

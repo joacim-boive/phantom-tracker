@@ -37,7 +37,7 @@
     "confirmDelete": "Are you sure you want to delete this entry?"
   },
   "weather": {
-    "temperature": "Temperature",
+    "temperature": "Temp",
     "feelsLike": "Feels like",
     "pressure": "Pressure",
     "humidity": "Humidity",
@@ -57,7 +57,7 @@
     "receding": "Receding"
   },
   "geomagnetic": {
-    "title": "Geomagnetic",
+    "title": "Magnetic",
     "kpIndex": "Kp Index",
     "stormLevel": "Storm Level",
     "quiet": "Quiet",
@@ -115,5 +115,9 @@
     "ball-outer": "Outer Ball",
     "arch": "Arch",
     "heel": "Heel"
+  },
+  "foot": {
+    "right": "Right Foot",
+    "left": "Left Foot"
   }
 }

@@ -8,6 +8,7 @@ import { FootModel } from "./FootModel";
 import { PainMarker } from "./PainMarker";
 import type { PainPoint } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslations } from "next-intl";
 
 interface FootSceneProps {
   selectedPoint: PainPoint | null;
@@ -35,6 +36,7 @@ export function FootScene({
   autoRotate = false,
   className = "",
 }: FootSceneProps) {
+  const t = useTranslations("foot");
   const controlsRef = useRef<OrbitControlsType>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredRegion, setHoveredRegion] = useState<string | null>(null);
@@ -128,9 +130,14 @@ export function FootScene({
         />
       </Canvas>
 
+      {/* Foot label */}
+      <div className="absolute top-3 left-3 text-sm font-semibold text-foreground bg-background/90 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-md border border-border">
+        {t("right")}
+      </div>
+
       {/* Tooltip showing hovered region */}
       {hoveredRegion && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 text-sm font-medium text-foreground bg-background/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-border animate-in fade-in-0 zoom-in-95 duration-150">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 text-sm font-medium text-foreground bg-background/90 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-border animate-in fade-in-0 zoom-in-95 duration-150">
           {hoveredRegion}
         </div>
       )}

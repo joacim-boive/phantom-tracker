@@ -1,27 +1,27 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { 
-  Cloud, 
-  Thermometer, 
-  Droplets, 
-  Wind, 
-  Gauge,
-  Moon,
-  Zap,
-  Sun,
-  Waves,
-  Sunrise,
-  Sunset
-} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
-import { getMoonPhaseEmoji } from "@/lib/environmental/lunar";
 import { getKpColorClass } from "@/lib/environmental/geomagnetic";
+import { getMoonPhaseEmoji } from "@/lib/environmental/lunar";
 import { getSolarColorClass } from "@/lib/environmental/solar";
+import { cn } from "@/lib/utils";
 import type { EnvironmentalData } from "@/types";
+import { motion } from "framer-motion";
+import {
+    Cloud,
+    Droplets,
+    Gauge,
+    Magnet,
+    Moon,
+    Sun,
+    Sunrise,
+    Sunset,
+    Thermometer,
+    Waves,
+    Wind
+} from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface CurrentConditionsProps {
   data: EnvironmentalData | null;
@@ -95,9 +95,9 @@ export function CurrentConditions({ data, isLoading }: CurrentConditionsProps) {
             variants={itemVariants}
             className="p-3 rounded-xl bg-weather/10 space-y-1"
           >
-            <div className="flex items-center gap-2 text-weather">
-              <Thermometer className="w-4 h-4" />
-              <span className="text-xs font-medium">{t("weather.temperature")}</span>
+            <div className="flex items-center gap-2">
+              <Thermometer className="w-4 h-4 shrink-0 text-weather" />
+              <span className="text-xs font-medium text-weather">{t("weather.temperature")}</span>
             </div>
             <div className="text-2xl font-bold">{weather.temperature}°C</div>
             <div className="text-xs text-muted-foreground">
@@ -176,9 +176,9 @@ export function CurrentConditions({ data, isLoading }: CurrentConditionsProps) {
             variants={itemVariants}
             className="p-3 rounded-xl bg-geomagnetic/10 space-y-1"
           >
-            <div className="flex items-center gap-2 text-geomagnetic">
-              <Zap className="w-4 h-4" />
-              <span className="text-xs font-medium">{t("geomagnetic.title")}</span>
+            <div className="flex items-center gap-2">
+              <Magnet className="w-4 h-4 shrink-0 text-geomagnetic" />
+              <span className="text-xs font-medium text-geomagnetic">{t("geomagnetic.title")}</span>
             </div>
             <div className={cn("text-2xl font-bold", getKpColorClass(geomagnetic.kp_index))}>
               Kp {geomagnetic.kp_index}
@@ -224,20 +224,28 @@ export function CurrentConditions({ data, isLoading }: CurrentConditionsProps) {
             </motion.div>
           )}
 
-          {/* Day length */}
+          {/* Sunrise */}
           <motion.div
             variants={itemVariants}
-            className="p-3 rounded-xl bg-muted space-y-1"
+            className="p-3 rounded-xl bg-amber-500/10 space-y-1"
           >
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-2 text-amber-500">
               <Sunrise className="w-4 h-4" />
+              <span className="text-xs font-medium">{t("temporal.sunrise")}</span>
+            </div>
+            <div className="text-2xl font-bold">{temporal.sunrise}</div>
+          </motion.div>
+
+          {/* Sunset */}
+          <motion.div
+            variants={itemVariants}
+            className="p-3 rounded-xl bg-orange-500/10 space-y-1"
+          >
+            <div className="flex items-center gap-2 text-orange-500">
               <Sunset className="w-4 h-4" />
-              <span className="text-xs font-medium">{t("temporal.dayLength")}</span>
+              <span className="text-xs font-medium">{t("temporal.sunset")}</span>
             </div>
-            <div className="text-2xl font-bold">{temporal.day_length_hours}h</div>
-            <div className="text-xs text-muted-foreground">
-              {temporal.sunrise} - {temporal.sunset}
-            </div>
+            <div className="text-2xl font-bold">{temporal.sunset}</div>
           </motion.div>
         </motion.div>
       </CardContent>

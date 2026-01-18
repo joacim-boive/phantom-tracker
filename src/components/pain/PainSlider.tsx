@@ -40,14 +40,6 @@ export function PainSlider({
     return "bg-rose-500";
   }, [value]);
 
-  // Gradient track style
-  const trackStyle = useMemo(() => ({
-    background: `linear-gradient(to right, 
-      oklch(0.7 0.17 160) 0%, 
-      oklch(0.75 0.18 85) 50%, 
-      oklch(0.65 0.22 25) 100%)`,
-  }), []);
-
   return (
     <div className={cn("space-y-3", className)}>
       {showLabels && (
@@ -62,22 +54,15 @@ export function PainSlider({
         </div>
       )}
 
-      <div className="relative">
-        <Slider
-          value={[value]}
-          onValueChange={handleChange}
-          min={1}
-          max={10}
-          step={1}
-          className="w-full"
-        />
-        
-        {/* Custom gradient track overlay */}
-        <div 
-          className="absolute inset-0 h-2 top-1/2 -translate-y-1/2 rounded-full pointer-events-none opacity-30"
-          style={trackStyle}
-        />
-      </div>
+      <Slider
+        value={[value]}
+        onValueChange={handleChange}
+        min={1}
+        max={10}
+        step={1}
+        className="w-full"
+        rangeClassName={bgClass}
+      />
 
       {showLabels && (
         <div className="flex justify-between text-xs text-muted-foreground">
@@ -88,14 +73,6 @@ export function PainSlider({
           <span>{t("10")}</span>
         </div>
       )}
-
-      {/* Visual indicator bar */}
-      <div className="h-1 bg-muted rounded-full overflow-hidden">
-        <div
-          className={cn("h-full transition-all duration-300", bgClass)}
-          style={{ width: `${value * 10}%` }}
-        />
-      </div>
     </div>
   );
 }
