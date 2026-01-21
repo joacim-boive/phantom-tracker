@@ -5,8 +5,6 @@ import {
   cacheWeatherData 
 } from "./weather-cache";
 
-const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
-
 export interface HistoricalWeatherPoint {
   date: string;
   timestamp: number;
@@ -41,6 +39,8 @@ async function fetchFromOpenWeather(
   coords: Coordinates,
   timestamp: number
 ): Promise<HistoricalWeatherPoint | null> {
+  const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+  
   if (!OPENWEATHERMAP_API_KEY) {
     console.warn("OpenWeatherMap API key not set");
     return null;

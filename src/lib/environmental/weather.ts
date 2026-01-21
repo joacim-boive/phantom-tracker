@@ -1,7 +1,5 @@
 import type { WeatherData, Coordinates } from "@/types";
 
-const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
-
 interface OpenWeatherResponse {
   main: {
     temp: number;
@@ -42,6 +40,8 @@ const AQI_LABELS: Record<number, string> = {
  * Fetch weather data from OpenWeatherMap
  */
 export async function fetchWeatherData(coords: Coordinates): Promise<WeatherData> {
+  const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+  
   if (!OPENWEATHERMAP_API_KEY) {
     console.warn("OpenWeatherMap API key not set, returning mock data");
     return getMockWeatherData();
