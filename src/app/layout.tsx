@@ -1,8 +1,9 @@
+import { Toaster } from "@/components/ui/sonner";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
-import { Toaster } from "@/components/ui/sonner";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,8 +18,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Phantom Tracker",
-  description: "Track phantom pain patterns and discover correlations with weather, lunar cycles, and environmental factors",
-  keywords: ["phantom pain", "pain tracker", "weather correlation", "amputee", "pain management"],
+  description:
+    "Track phantom pain patterns and discover correlations with weather, lunar cycles, and environmental factors",
+  keywords: [
+    "phantom pain",
+    "pain tracker",
+    "weather correlation",
+    "amputee",
+    "pain management",
+  ],
   authors: [{ name: "Phantom Tracker" }],
   manifest: "/manifest.json",
   appleWebApp: {
@@ -45,14 +53,15 @@ export default async function RootLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className="dark">
+    <html lang={locale} className='dark'>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen bg-background`}
       >
         <NextIntlClientProvider messages={messages}>
           {children}
-          <Toaster position="top-center" richColors closeButton />
+          <Toaster position='top-center' richColors closeButton />
         </NextIntlClientProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
