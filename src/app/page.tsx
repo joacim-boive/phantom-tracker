@@ -1,29 +1,40 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { motion } from "framer-motion";
-import { Menu, X, Activity } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { useTranslations } from "next-intl";
-import { toast } from "sonner";
+import {
+  CalendarHeatmap,
+  LunarPhaseChart,
+  PainTimeline,
+  PressureCorrelation,
+} from "@/components/charts";
+import {
+  CurrentConditions,
+  InsightCards,
+  PainOverview,
+} from "@/components/dashboard";
+import { EntryList } from "@/components/entries";
 import { FootScene } from "@/components/foot-model";
 import { PainSlider, QuickAddFAB } from "@/components/pain";
-import { EntryList } from "@/components/entries";
-import { CurrentConditions, PainOverview, InsightCards } from "@/components/dashboard";
-import { PainTimeline, PressureCorrelation, LunarPhaseChart, CalendarHeatmap } from "@/components/charts";
-import { useGeolocation } from "@/hooks/useGeolocation";
-import { useEnvironmentalData } from "@/hooks/useEnvironmentalData";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useEntries } from "@/hooks/useEntries";
-import type { PainPoint, PainEntry, CreatePainEntry } from "@/types";
+import { useEnvironmentalData } from "@/hooks/useEnvironmentalData";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import type { CreatePainEntry, PainEntry, PainPoint } from "@/types";
+import { motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import Image from "next/image";
+import { useCallback, useState } from "react";
+import { toast } from "sonner";
 
 export default function HomePage() {
   const t = useTranslations();
-  
+
   // Geolocation and environmental data
   const { coordinates } = useGeolocation();
-  const { data: environmentalData, isLoading: isLoadingEnv } = useEnvironmentalData(coordinates);
-  
+  const { data: environmentalData, isLoading: isLoadingEnv } =
+    useEnvironmentalData(coordinates);
+
   // Entries state
   const {
     entries,
@@ -33,7 +44,7 @@ export default function HomePage() {
     updateEntry,
     deleteEntry,
   } = useEntries();
-  
+
   // Local state
   const [selectedPoint, setSelectedPoint] = useState<PainPoint | null>(null);
   const [painLevel, setPainLevel] = useState(5);
@@ -82,7 +93,7 @@ export default function HomePage() {
         toast.success(t("entry.success"));
         setSelectedPoint(null);
         setPainLevel(5);
-        
+
         // Haptic success
         if (navigator.vibrate) {
           navigator.vibrate([50, 50, 50]);
@@ -95,7 +106,14 @@ export default function HomePage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [selectedPoint, painLevel, environmentalData, coordinates, createEntry, t]);
+  }, [
+    selectedPoint,
+    painLevel,
+    environmentalData,
+    coordinates,
+    createEntry,
+    t,
+  ]);
 
   // Quick add - duplicate last entry with fresh environmental data
   const handleQuickAdd = useCallback(async (): Promise<boolean> => {
@@ -121,12 +139,12 @@ export default function HomePage() {
     };
 
     const result = await createEntry(entry);
-    
+
     if (result) {
       toast.success(t("entry.success"));
       return true;
     }
-    
+
     toast.error(t("entry.error"));
     return false;
   }, [lastEntry, environmentalData, coordinates, createEntry, t]);
@@ -137,43 +155,54 @@ export default function HomePage() {
   }, []);
 
   // Update entry
-  const handleUpdateEntry = useCallback(async (entry: PainEntry) => {
-    const result = await updateEntry(entry.id, {
-      pain_level: entry.pain_level,
-    });
-    
-    if (result) {
-      setEditingEntry(null);
-      toast.success("Entry updated");
-    }
-  }, [updateEntry]);
+  const handleUpdateEntry = useCallback(
+    async (entry: PainEntry) => {
+      const result = await updateEntry(entry.id, {
+        pain_level: entry.pain_level,
+      });
+
+      if (result) {
+        setEditingEntry(null);
+        toast.success("Entry updated");
+      }
+    },
+    [updateEntry],
+  );
 
   return (
-    <div className="min-h-screen bg-background animated-gradient noise-overlay relative">
+    <div className='min-h-screen bg-background animated-gradient noise-overlay relative'>
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b">
-        <div className="container mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Activity className="w-6 h-6 text-primary" />
-            <h1 className="font-bold text-lg gradient-text">{t("app.name")}</h1>
+      <header className='sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b'>
+        <div className='container mx-auto px-4 h-14 flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
+            <Image
+              src='/icons/pain-phantom-logo.png'
+              alt=''
+              width={24}
+              height={24}
+              className='w-6 h-6'
+              aria-hidden='true'
+              unoptimized
+            />
+            <h1 className='font-bold text-lg gradient-text'>{t("app.name")}</h1>
           </div>
-          
+
           {/* Mobile menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="md:hidden">
-                <Menu className="w-5 h-5" />
+              <Button variant='ghost' size='icon' className='md:hidden'>
+                <Menu className='w-5 h-5' />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-72">
-              <nav className="flex flex-col gap-4 mt-8">
-                <Button variant="ghost" className="justify-start">
+            <SheetContent side='right' className='w-72'>
+              <nav className='flex flex-col gap-4 mt-8'>
+                <Button variant='ghost' className='justify-start'>
                   {t("navigation.dashboard")}
                 </Button>
-                <Button variant="ghost" className="justify-start">
+                <Button variant='ghost' className='justify-start'>
                   {t("navigation.history")}
                 </Button>
-                <Button variant="ghost" className="justify-start">
+                <Button variant='ghost' className='justify-start'>
                   {t("navigation.settings")}
                 </Button>
               </nav>
@@ -183,15 +212,15 @@ export default function HomePage() {
       </header>
 
       {/* Main content */}
-      <main className="container mx-auto px-4 py-6 space-y-6 pb-24">
+      <main className='container mx-auto px-4 py-6 space-y-6 pb-24'>
         {/* Entry Form Section */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
+          className='space-y-4'
         >
           {/* 3D Foot Model */}
-          <div className="bg-card rounded-2xl border overflow-hidden">
+          <div className='bg-card rounded-2xl border overflow-hidden'>
             <FootScene
               selectedPoint={selectedPoint}
               onPointSelect={handlePointSelect}
@@ -199,7 +228,7 @@ export default function HomePage() {
           </div>
 
           {/* Pain Level Slider */}
-          <div className="bg-card rounded-2xl border p-4">
+          <div className='bg-card rounded-2xl border p-4'>
             <PainSlider value={painLevel} onChange={setPainLevel} />
           </div>
 
@@ -207,8 +236,8 @@ export default function HomePage() {
           <Button
             onClick={handleSubmit}
             disabled={!selectedPoint || isSubmitting || !environmentalData}
-            className="w-full h-12 text-lg"
-            size="lg"
+            className='w-full h-12 text-lg'
+            size='lg'
           >
             {isSubmitting ? t("common.loading") : t("entry.submit")}
           </Button>
@@ -218,9 +247,12 @@ export default function HomePage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-center text-sm text-muted-foreground"
+              className='text-center text-sm text-muted-foreground'
             >
-              Selected: <span className="font-medium text-foreground">{selectedPoint.name}</span>
+              Selected:{" "}
+              <span className='font-medium text-foreground'>
+                {selectedPoint.name}
+              </span>
             </motion.div>
           )}
         </motion.section>
@@ -230,11 +262,14 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid gap-6 md:grid-cols-2"
+          className='grid gap-6 md:grid-cols-2'
         >
           {/* Current Conditions */}
-          <CurrentConditions data={environmentalData} isLoading={isLoadingEnv} />
-          
+          <CurrentConditions
+            data={environmentalData}
+            isLoading={isLoadingEnv}
+          />
+
           {/* Pain Overview */}
           <PainOverview entries={entries} isLoading={isLoadingEntries} />
         </motion.section>
@@ -244,22 +279,25 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="space-y-6"
+          className='space-y-6'
         >
           {/* Pain Timeline - Full width */}
           <PainTimeline entries={entries} isLoading={isLoadingEntries} />
-          
+
           {/* Correlation Charts Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <PressureCorrelation entries={entries} isLoading={isLoadingEntries} />
-            <LunarPhaseChart 
-              entries={entries} 
+          <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+            <PressureCorrelation
+              entries={entries}
+              isLoading={isLoadingEntries}
+            />
+            <LunarPhaseChart
+              entries={entries}
               isLoading={isLoadingEntries}
               currentPhase={environmentalData?.lunar.phase}
             />
             <CalendarHeatmap entries={entries} isLoading={isLoadingEntries} />
           </div>
-          
+
           {/* Insights */}
           <InsightCards entries={entries} isLoading={isLoadingEntries} />
         </motion.section>
@@ -315,33 +353,36 @@ function EditDialog({
   }, [entry, painLevel, onSave]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
+    <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm'>
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-card rounded-2xl border shadow-xl p-6 w-full max-w-md space-y-6"
+        className='bg-card rounded-2xl border shadow-xl p-6 w-full max-w-md space-y-6'
       >
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{t("entryCard.edit")}</h2>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="w-5 h-5" />
+        <div className='flex items-center justify-between'>
+          <h2 className='text-lg font-semibold'>{t("entryCard.edit")}</h2>
+          <Button variant='ghost' size='icon' onClick={onClose}>
+            <X className='w-5 h-5' />
           </Button>
         </div>
 
-        <div className="space-y-4">
-          <div className="text-sm text-muted-foreground">
-            Location: <span className="font-medium text-foreground">{entry.pain_point_name}</span>
+        <div className='space-y-4'>
+          <div className='text-sm text-muted-foreground'>
+            Location:{" "}
+            <span className='font-medium text-foreground'>
+              {entry.pain_point_name}
+            </span>
           </div>
-          
+
           <PainSlider value={painLevel} onChange={setPainLevel} />
         </div>
 
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={onClose} className="flex-1">
+        <div className='flex gap-3'>
+          <Button variant='outline' onClick={onClose} className='flex-1'>
             {t("common.cancel")}
           </Button>
-          <Button onClick={handleSave} className="flex-1">
+          <Button onClick={handleSave} className='flex-1'>
             {t("common.save")}
           </Button>
         </div>

@@ -9,7 +9,13 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icons/icon-512.png",
+      "src": "/icons/pain-phantom-logo.png",
+      "sizes": "192x182",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/pain-phantom-logo-large.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
