@@ -1,7 +1,8 @@
 import type { GeomagneticData } from "@/types";
 
 // NOAA Space Weather Prediction Center API
-const NOAA_KP_URL = "https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json";
+const NOAA_KP_URL =
+  "https://services.swpc.noaa.gov/products/noaa-planetary-k-index.json";
 
 // Kp index labels
 const KP_LABELS: Record<number, string> = {
@@ -29,8 +30,9 @@ function getStormLevel(kp: number): string {
 
 /**
  * Fetch geomagnetic data from NOAA Space Weather Prediction Center
+ * Returns null if the data cannot be fetched or parsed
  */
-export async function fetchGeomagneticData(): Promise<GeomagneticData> {
+export async function fetchGeomagneticData(): Promise<GeomagneticData | null> {
   try {
     const response = await fetch(NOAA_KP_URL, {
       next: { revalidate: 3600 }, // Cache for 1 hour
@@ -40,8 +42,34 @@ export async function fetchGeomagneticData(): Promise<GeomagneticData> {
       throw new Error(`NOAA API error: ${response.status}`);
     }
 
-    const data = await response.json();
-    
+    // Get response as text first to handle potential JSON parsing errors
+    const text = await response.text();
+
+    if (!text || text.trim().length === 0) {
+      throw new Error("Empty response from NOAA Geomagnetic API");
+    }
+
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseError) {
+      const errorMessage =
+        parseError instanceof Error ? parseError.message : String(parseError);
+      console.error("JSON parse error:", errorMessage);
+      console.error("Response length:", text.length);
+      console.error(
+        "Response preview (first 500 chars):",
+        text.substring(0, 500),
+      );
+      console.error(
+        "Response preview (last 500 chars):",
+        text.substring(Math.max(0, text.length - 500)),
+      );
+      throw new Error(
+        `Failed to parse NOAA Geomagnetic API response: ${errorMessage}`,
+      );
+    }
+
     // Data format: [["time_tag", "Kp", "a_running", "station_count"], ...]
     // Skip header row and get the latest entry
     if (!Array.isArray(data) || data.length < 2) {
@@ -50,7 +78,7 @@ export async function fetchGeomagneticData(): Promise<GeomagneticData> {
 
     const latestEntry = data[data.length - 1];
     const kp_index = Math.round(parseFloat(latestEntry[1]));
-    
+
     return {
       kp_index,
       kp_label: KP_LABELS[kp_index] ?? "Unknown",
@@ -59,17 +87,8 @@ export async function fetchGeomagneticData(): Promise<GeomagneticData> {
     };
   } catch (error) {
     console.error("Failed to fetch geomagnetic data:", error);
-    return getMockGeomagneticData();
+    return null;
   }
-}
-
-function getMockGeomagneticData(): GeomagneticData {
-  return {
-    kp_index: 2,
-    kp_label: "Quiet",
-    storm_level: "G0",
-    solar_wind_speed: null,
-  };
 }
 
 /**

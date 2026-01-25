@@ -1,19 +1,19 @@
-import type { EnvironmentalData, Coordinates } from "@/types";
-import { fetchWeatherData } from "./weather";
-import { calculateLunarData } from "./lunar";
+import type { Coordinates, EnvironmentalData } from "@/types";
 import { fetchGeomagneticData } from "./geomagnetic";
+import { calculateLunarData } from "./lunar";
 import { fetchSolarData } from "./solar";
-import { fetchTidalData } from "./tidal";
 import { calculateTemporalData } from "./temporal";
+import { fetchTidalData } from "./tidal";
+import { fetchWeatherData } from "./weather";
 
 /**
  * Fetch all environmental data for a given location
  */
 export async function fetchAllEnvironmentalData(
-  coords: Coordinates
+  coords: Coordinates,
 ): Promise<EnvironmentalData> {
   const now = new Date();
-  
+
   // Fetch all data in parallel for performance
   const [weather, geomagnetic, solar, tidal] = await Promise.all([
     fetchWeatherData(coords),
@@ -33,12 +33,13 @@ export async function fetchAllEnvironmentalData(
     solar,
     tidal,
     temporal,
+    location_name: weather?.location_name ?? null,
   };
 }
 
-export { fetchWeatherData } from "./weather";
-export { calculateLunarData } from "./lunar";
 export { fetchGeomagneticData } from "./geomagnetic";
+export { calculateLunarData } from "./lunar";
 export { fetchSolarData } from "./solar";
-export { fetchTidalData } from "./tidal";
 export { calculateTemporalData } from "./temporal";
+export { fetchTidalData } from "./tidal";
+export { fetchWeatherData } from "./weather";

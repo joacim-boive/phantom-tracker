@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, MapPin, AlertCircle } from "lucide-react";
+import { PainSlider } from "@/components/pain/PainSlider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -11,12 +9,33 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useTranslations } from "next-intl";
-import { toast } from "sonner";
-import { FootScene } from "@/components/foot-model";
-import { PainSlider } from "@/components/pain";
-import type { PainPoint, PainEntry, CreatePainEntry, EnvironmentalData } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import type {
+  CreatePainEntry,
+  EnvironmentalData,
+  PainEntry,
+  PainPoint,
+} from "@/types";
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, Loader2, MapPin } from "lucide-react";
+import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+import { useState } from "react";
+import { toast } from "sonner";
+
+// Dynamic import for heavy Three.js component
+const FootScene = dynamic(
+  () => import("@/components/foot-model/FootScene").then((m) => m.FootScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className='w-full aspect-square max-h-[400px] flex items-center justify-center'>
+        <Skeleton className='w-32 h-32 rounded-full' />
+      </div>
+    ),
+  },
+);
 
 interface EntryFormProps {
   onSubmit: (entry: CreatePainEntry) => Promise<PainEntry | null>;
@@ -44,20 +63,20 @@ export function EntryForm({
           z: editEntry.pain_point_z,
           name: editEntry.pain_point_name ?? "",
         }
-      : null
+      : null,
   );
   const [painLevel, setPainLevel] = useState(editEntry?.pain_level ?? 5);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handlePointSelect = useCallback((point: PainPoint) => {
+  function handlePointSelect(point: PainPoint) {
     setSelectedPoint(point);
     // Haptic feedback
     if (navigator.vibrate) {
       navigator.vibrate(30);
     }
-  }, []);
+  }
 
-  const handleSubmit = useCallback(async () => {
+  async function handleSubmit() {
     if (!selectedPoint) {
       toast.error(t("entry.selectPoint"));
       return;
@@ -97,7 +116,7 @@ export function EntryForm({
     } finally {
       setIsSubmitting(false);
     }
-  }, [selectedPoint, painLevel, environmentalData, coordinates, onSubmit, onClose, t]);
+  }
 
   const isEditMode = !!editEntry;
   const FormWrapper = isEditMode ? Dialog : "div";
@@ -113,12 +132,12 @@ export function EntryForm({
 
       <div className={cn(isEditMode ? "space-y-6" : "")}>
         {!isEditMode && (
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2">
+          <CardHeader className='pb-2'>
+            <CardTitle className='flex items-center gap-2'>
               {t("entry.title")}
               {coordinates && (
-                <span className="text-xs text-muted-foreground font-normal flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />
+                <span className='text-xs text-muted-foreground font-normal flex items-center gap-1'>
+                  <MapPin className='w-3 h-3' />
                   Location detected
                 </span>
               )}
@@ -128,12 +147,12 @@ export function EntryForm({
 
         <CardContent className={cn(!isEditMode && "space-y-6")}>
           {/* 3D Foot Model */}
-          <div className="relative">
+          <div className='relative'>
             <FootScene
               selectedPoint={selectedPoint}
               onPointSelect={handlePointSelect}
             />
-            
+
             {/* Selected point info */}
             <AnimatePresence>
               {selectedPoint && (
@@ -141,9 +160,9 @@ export function EntryForm({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
-                  className="absolute top-2 left-2 bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border text-sm"
+                  className='absolute top-2 left-2 bg-card/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border text-sm'
                 >
-                  <span className="font-medium">{selectedPoint.name}</span>
+                  <span className='font-medium'>{selectedPoint.name}</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -154,15 +173,15 @@ export function EntryForm({
 
           {/* Environmental data status */}
           {isLoadingEnv && (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="w-4 h-4 animate-spin" />
+            <div className='flex items-center gap-2 text-sm text-muted-foreground'>
+              <Loader2 className='w-4 h-4 animate-spin' />
               <span>Loading environmental data...</span>
             </div>
           )}
 
           {!isLoadingEnv && !environmentalData && (
-            <div className="flex items-center gap-2 text-sm text-amber-500">
-              <AlertCircle className="w-4 h-4" />
+            <div className='flex items-center gap-2 text-sm text-amber-500'>
+              <AlertCircle className='w-4 h-4' />
               <span>Could not load environmental data</span>
             </div>
           )}
@@ -171,12 +190,12 @@ export function EntryForm({
           <Button
             onClick={handleSubmit}
             disabled={!selectedPoint || isSubmitting || !environmentalData}
-            className="w-full"
-            size="lg"
+            className='w-full'
+            size='lg'
           >
             {isSubmitting ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className='w-4 h-4 mr-2 animate-spin' />
                 {t("common.loading")}
               </>
             ) : (
@@ -191,9 +210,7 @@ export function EntryForm({
   if (isEditMode) {
     return (
       <FormWrapper open={!!editEntry} onOpenChange={() => onClose?.()}>
-        <ContentWrapper className="max-w-lg">
-          {formContent}
-        </ContentWrapper>
+        <ContentWrapper className='max-w-lg'>{formContent}</ContentWrapper>
       </FormWrapper>
     );
   }

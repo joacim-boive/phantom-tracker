@@ -1,6 +1,7 @@
-import type { WeatherData, Coordinates } from "@/types";
+import type { Coordinates, WeatherData } from "@/types";
 
 interface OpenWeatherResponse {
+  name: string;
   main: {
     temp: number;
     feels_like: number;
@@ -38,25 +39,28 @@ const AQI_LABELS: Record<number, string> = {
 
 /**
  * Fetch weather data from OpenWeatherMap
+ * Returns null if the data cannot be fetched
  */
-export async function fetchWeatherData(coords: Coordinates): Promise<WeatherData> {
+export async function fetchWeatherData(
+  coords: Coordinates,
+): Promise<WeatherData | null> {
   const OPENWEATHERMAP_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
-  
+
   if (!OPENWEATHERMAP_API_KEY) {
-    console.warn("OpenWeatherMap API key not set, returning mock data");
-    return getMockWeatherData();
+    console.warn("OpenWeatherMap API key not set");
+    return null;
   }
 
   try {
     const { latitude, longitude } = coords;
-    
+
     // Fetch current weather and air pollution in parallel
     const [weatherRes, aqiRes] = await Promise.all([
       fetch(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${OPENWEATHERMAP_API_KEY}`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=${OPENWEATHERMAP_API_KEY}`,
       ),
       fetch(
-        `https://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${OPENWEATHERMAP_API_KEY}`
+        `https://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${OPENWEATHERMAP_API_KEY}`,
       ),
     ]);
 
@@ -65,10 +69,10 @@ export async function fetchWeatherData(coords: Coordinates): Promise<WeatherData
     }
 
     const weatherData: OpenWeatherResponse = await weatherRes.json();
-    
+
     let aqi: number | null = null;
     let aqi_label: string | null = null;
-    
+
     if (aqiRes.ok) {
       const aqiData: AirPollutionResponse = await aqiRes.json();
       if (aqiData.list?.[0]?.main?.aqi) {
@@ -96,27 +100,10 @@ export async function fetchWeatherData(coords: Coordinates): Promise<WeatherData
       visibility: weatherData.visibility,
       aqi,
       aqi_label,
+      location_name: weatherData.name ?? null,
     };
   } catch (error) {
     console.error("Failed to fetch weather data:", error);
-    return getMockWeatherData();
+    return null;
   }
-}
-
-function getMockWeatherData(): WeatherData {
-  return {
-    temperature: 12.5,
-    feels_like: 10.2,
-    pressure: 1013,
-    pressure_trend: "stable",
-    pressure_change_3h: 0,
-    humidity: 65,
-    weather_condition: "Clouds",
-    weather_description: "scattered clouds",
-    wind_speed: 3.5,
-    clouds: 40,
-    visibility: 10000,
-    aqi: null,
-    aqi_label: null,
-  };
 }

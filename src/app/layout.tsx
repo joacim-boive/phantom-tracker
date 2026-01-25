@@ -1,5 +1,6 @@
+import { QueryProvider } from "@/components/QueryProvider";
+import { SpeedInsightsClient } from "@/components/SpeedInsights";
 import { Toaster } from "@/components/ui/sonner";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
@@ -57,11 +58,13 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased min-h-screen bg-background`}
       >
-        <NextIntlClientProvider messages={messages}>
-          {children}
-          <Toaster position='top-center' richColors closeButton />
-        </NextIntlClientProvider>
-        <SpeedInsights />
+        <QueryProvider>
+          <NextIntlClientProvider messages={messages}>
+            {children}
+            <Toaster position='top-center' richColors closeButton />
+          </NextIntlClientProvider>
+        </QueryProvider>
+        <SpeedInsightsClient />
       </body>
     </html>
   );

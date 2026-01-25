@@ -1,9 +1,10 @@
-import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-const nextConfig: NextConfig = {
+const nextConfig = {
+  // Enable React Compiler for automatic memoization
+  reactCompiler: true,
   // Enable experimental features for better performance
   experimental: {
     // Optimize package imports

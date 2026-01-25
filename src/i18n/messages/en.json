@@ -114,7 +114,9 @@
     "last30Days": "Last 30 days",
     "entries": "entries",
     "avgPain": "Avg pain",
-    "mostAffected": "Most affected"
+    "mostAffected": "Most affected",
+    "noDataForPeriod": "No data for this time range",
+    "totalEntries": "Total entries"
   },
   "entry": {
     "title": "Log Pain Entry",
