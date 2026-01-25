@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
 import type { Coordinates } from "@/types";
+import { useEffect, useState } from "react";
 
 interface GeolocationState {
   coordinates: Coordinates | null;
@@ -22,7 +22,7 @@ export function useGeolocation() {
     isLoading: true,
   });
 
-  const requestLocation = useCallback(() => {
+  function requestLocation() {
     if (!navigator.geolocation) {
       setState({
         coordinates: DEFAULT_COORDINATES,
@@ -32,7 +32,7 @@ export function useGeolocation() {
       return;
     }
 
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
+    setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
     navigator.geolocation.getCurrentPosition(
       function handleSuccess(position) {
@@ -60,7 +60,7 @@ export function useGeolocation() {
           default:
             errorMessage = "An unknown error occurred";
         }
-        
+
         // Use default coordinates on error
         setState({
           coordinates: DEFAULT_COORDINATES,
@@ -72,13 +72,14 @@ export function useGeolocation() {
         enableHighAccuracy: false,
         timeout: 10000,
         maximumAge: 300000, // Cache for 5 minutes
-      }
+      },
     );
-  }, []);
+  }
 
   useEffect(() => {
     requestLocation();
-  }, [requestLocation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     ...state,

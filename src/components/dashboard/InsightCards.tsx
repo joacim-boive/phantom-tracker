@@ -1,13 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
-import { motion } from "framer-motion";
-import { Lightbulb, TrendingDown, Moon, Zap, Gauge } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import type { PainEntry, CorrelationInsight } from "@/types";
+import type { CorrelationInsight, PainEntry } from "@/types";
+import { motion } from "framer-motion";
+import { Gauge, Lightbulb, Moon, TrendingDown, Zap } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface InsightCardsProps {
   entries: PainEntry[];
@@ -17,7 +16,7 @@ interface InsightCardsProps {
 export function InsightCards({ entries, isLoading }: InsightCardsProps) {
   const t = useTranslations("insights");
 
-  const insights = useMemo((): CorrelationInsight[] => {
+  function calculateInsights(): CorrelationInsight[] {
     if (entries.length < 5) {
       return [];
     }
@@ -26,10 +25,10 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
 
     // Analyze pressure correlation
     const lowPressureEntries = entries.filter(
-      (e) => e.environmental_data.weather.pressure < 1010
+      (e) => e.environmental_data.weather.pressure < 1010,
     );
     const highPressureEntries = entries.filter(
-      (e) => e.environmental_data.weather.pressure >= 1010
+      (e) => e.environmental_data.weather.pressure >= 1010,
     );
 
     if (lowPressureEntries.length >= 3 && highPressureEntries.length >= 3) {
@@ -50,7 +49,10 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
             diff > 0
               ? `Pain is ${Math.round(Math.abs(diff) * 10) / 10} points higher when pressure is below 1010 hPa`
               : `Pain is ${Math.round(Math.abs(diff) * 10) / 10} points lower when pressure is below 1010 hPa`,
-          confidence: Math.min(0.9, (lowPressureEntries.length + highPressureEntries.length) / 20),
+          confidence: Math.min(
+            0.9,
+            (lowPressureEntries.length + highPressureEntries.length) / 20,
+          ),
           icon: "gauge",
         });
       }
@@ -59,10 +61,10 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
     // Analyze lunar phase correlation
     const lunarPhases = ["new_moon", "full_moon"];
     const specialPhaseEntries = entries.filter((e) =>
-      lunarPhases.includes(e.environmental_data.lunar.phase)
+      lunarPhases.includes(e.environmental_data.lunar.phase),
     );
     const normalPhaseEntries = entries.filter(
-      (e) => !lunarPhases.includes(e.environmental_data.lunar.phase)
+      (e) => !lunarPhases.includes(e.environmental_data.lunar.phase),
     );
 
     if (specialPhaseEntries.length >= 2 && normalPhaseEntries.length >= 3) {
@@ -79,7 +81,7 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
           id: "lunar",
           type: "lunar",
           title: "Lunar Pattern",
-          description: `Pain is ${Math.round(((avgSpecialPain / avgNormalPain) - 1) * 100)}% higher during new and full moons`,
+          description: `Pain is ${Math.round((avgSpecialPain / avgNormalPain - 1) * 100)}% higher during new and full moons`,
           confidence: Math.min(0.8, specialPhaseEntries.length / 10),
           icon: "moon",
         });
@@ -88,10 +90,10 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
 
     // Analyze geomagnetic activity
     const activeGeoEntries = entries.filter(
-      (e) => e.environmental_data.geomagnetic.kp_index >= 4
+      (e) => e.environmental_data.geomagnetic.kp_index >= 4,
     );
     const quietGeoEntries = entries.filter(
-      (e) => e.environmental_data.geomagnetic.kp_index < 4
+      (e) => e.environmental_data.geomagnetic.kp_index < 4,
     );
 
     if (activeGeoEntries.length >= 2 && quietGeoEntries.length >= 3) {
@@ -117,7 +119,7 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
 
     // Analyze pressure trend
     const fallingPressureEntries = entries.filter(
-      (e) => e.environmental_data.weather.pressure_trend === "falling"
+      (e) => e.environmental_data.weather.pressure_trend === "falling",
     );
     if (fallingPressureEntries.length >= 3) {
       const avgFallingPain =
@@ -140,18 +142,20 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
     }
 
     return generatedInsights;
-  }, [entries]);
+  }
+
+  const insights = calculateInsights();
 
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <Skeleton className="h-6 w-40" />
+          <Skeleton className='h-6 w-40' />
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className='space-y-3'>
             {[1, 2].map((i) => (
-              <Skeleton key={i} className="h-16 w-full" />
+              <Skeleton key={i} className='h-16 w-full' />
             ))}
           </div>
         </CardContent>
@@ -191,24 +195,24 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
 
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2">
-          <Lightbulb className="w-5 h-5 text-amber-500" />
+      <CardHeader className='pb-2'>
+        <CardTitle className='flex items-center gap-2'>
+          <Lightbulb className='w-5 h-5 text-amber-500' />
           Correlation Insights
         </CardTitle>
       </CardHeader>
       <CardContent>
         {insights.length === 0 ? (
-          <div className="text-center py-6 text-muted-foreground">
-            <Lightbulb className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <div className='text-center py-6 text-muted-foreground'>
+            <Lightbulb className='w-12 h-12 mx-auto mb-2 opacity-50' />
             <p>{t("noData")}</p>
-            <p className="text-sm">{t("keepTracking")}</p>
+            <p className='text-sm'>{t("keepTracking")}</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className='space-y-3'>
             {insights.map((insight, index) => {
               const Icon = getIcon(insight.icon);
-              
+
               return (
                 <motion.div
                   key={insight.id}
@@ -217,18 +221,20 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
                   transition={{ delay: index * 0.1 }}
                   className={cn(
                     "p-3 rounded-xl flex items-start gap-3",
-                    getTypeColor(insight.type)
+                    getTypeColor(insight.type),
                   )}
                 >
-                  <Icon className="w-5 h-5 mt-0.5 shrink-0" />
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{insight.title}</span>
-                      <span className="text-xs opacity-70">
+                  <Icon className='w-5 h-5 mt-0.5 shrink-0' />
+                  <div className='space-y-1 flex-1'>
+                    <div className='flex items-center justify-between'>
+                      <span className='font-medium text-sm'>
+                        {insight.title}
+                      </span>
+                      <span className='text-xs opacity-70'>
                         {Math.round(insight.confidence * 100)}% confidence
                       </span>
                     </div>
-                    <p className="text-sm opacity-90">{insight.description}</p>
+                    <p className='text-sm opacity-90'>{insight.description}</p>
                   </div>
                 </motion.div>
               );

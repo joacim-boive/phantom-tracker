@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import type { PainEntry } from "@/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { Moon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 interface LunarPhaseChartProps {
   entries: PainEntry[];
@@ -34,7 +34,7 @@ export function LunarPhaseChart({
   const [hoveredPhase, setHoveredPhase] = useState<string | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
-  const phaseData = useMemo(() => {
+  function calculatePhaseData() {
     const phaseCounts: Record<string, { count: number; totalPain: number }> =
       {};
 
@@ -69,7 +69,9 @@ export function LunarPhaseChart({
     const maxCount = Math.max(...data.map((d) => d.count), 0);
 
     return { data, maxCount };
-  }, [entries]);
+  }
+
+  const phaseData = calculatePhaseData();
 
   if (isLoading) {
     return (
@@ -100,7 +102,7 @@ export function LunarPhaseChart({
 
   function handleMouseEnter(
     phaseId: string,
-    event: React.MouseEvent<SVGElement>
+    event: React.MouseEvent<SVGElement>,
   ) {
     setHoveredPhase(phaseId);
     const container = event.currentTarget.closest(".relative");
@@ -115,7 +117,7 @@ export function LunarPhaseChart({
 
   function handleMouseMove(
     phaseId: string,
-    event: React.MouseEvent<SVGElement>
+    event: React.MouseEvent<SVGElement>,
   ) {
     if (hoveredPhase === phaseId) {
       const container = event.currentTarget.closest(".relative");
@@ -133,9 +135,7 @@ export function LunarPhaseChart({
     setHoveredPhase(null);
   }
 
-  const hoveredPhaseData = phaseData.data.find(
-    (p) => p.id === hoveredPhase
-  );
+  const hoveredPhaseData = phaseData.data.find((p) => p.id === hoveredPhase);
 
   return (
     <Card>
@@ -224,7 +224,7 @@ export function LunarPhaseChart({
                     dominantBaseline='middle'
                     className={cn(
                       "text-lg cursor-pointer",
-                      isCurrentPhase && "animate-pulse"
+                      isCurrentPhase && "animate-pulse",
                     )}
                     style={{ fontSize: isCurrentPhase ? "24px" : "18px" }}
                     onMouseEnter={(e) => handleMouseEnter(phase.id, e)}
@@ -267,33 +267,34 @@ export function LunarPhaseChart({
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: 10 }}
                 transition={{ duration: 0.2 }}
-                className="absolute pointer-events-none z-10"
+                className='absolute pointer-events-none z-10'
                 style={{
                   left: `${tooltipPosition.x}px`,
                   top: `${tooltipPosition.y}px`,
                   transform: "translate(-50%, -100%) translateY(-8px)",
                 }}
               >
-                <div className="bg-popover text-popover-foreground border rounded-lg shadow-lg px-3 py-2 text-sm whitespace-nowrap">
-                  <div className="font-semibold mb-1">
+                <div className='bg-popover text-popover-foreground border rounded-lg shadow-lg px-3 py-2 text-sm whitespace-nowrap'>
+                  <div className='font-semibold mb-1'>
                     {hoveredPhaseData.name}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Pain:</span>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-muted-foreground'>Pain:</span>
                     <span
-                      className="font-bold"
+                      className='font-bold'
                       style={{ color: getPainColor(hoveredPhaseData.avgPain) }}
                     >
                       {hoveredPhaseData.avgPain}/10
                     </span>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {hoveredPhaseData.count} {hoveredPhaseData.count === 1 ? "entry" : "entries"}
+                  <div className='text-xs text-muted-foreground mt-1'>
+                    {hoveredPhaseData.count}{" "}
+                    {hoveredPhaseData.count === 1 ? "entry" : "entries"}
                   </div>
                 </div>
                 {/* Tooltip arrow */}
                 <div
-                  className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-popover"
+                  className='absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-popover'
                   style={{ marginTop: "-1px" }}
                 />
               </motion.div>

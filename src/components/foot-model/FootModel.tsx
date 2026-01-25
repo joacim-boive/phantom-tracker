@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
-import { useFrame } from "@react-three/fiber";
-import * as THREE from "three";
-import type { PainPoint, FootBlock } from "@/types";
 import { FOOT_BLOCKS } from "@/lib/foot-regions";
+import type { FootBlock, PainPoint } from "@/types";
+import { useFrame } from "@react-three/fiber";
+import { useEffect, useRef, useState } from "react";
+import * as THREE from "three";
 
 interface FootModelProps {
   onPointSelect: (point: PainPoint) => void;
@@ -21,12 +21,13 @@ interface FootBlockMeshProps {
   onClick: (block: FootBlock) => void;
 }
 
-// Colors for different states
+// Colors for different states - module-level constants to avoid allocations
 const COLORS = {
   default: new THREE.Color("#64748b"), // Slate-500
   hover: new THREE.Color("#3b82f6"), // Blue-500
   selected: new THREE.Color("#14b8a6"), // Teal-500
   edge: new THREE.Color("#334155"), // Slate-700
+  black: new THREE.Color("#000000"), // Used for emissive reset
 };
 
 function FootBlockMesh({
@@ -42,11 +43,11 @@ function FootBlockMesh({
   const currentScale = useRef(1);
 
   // Determine current color based on state
-  const getColor = useCallback((): THREE.Color => {
+  function getColor(): THREE.Color {
     if (isSelected) return COLORS.selected;
     if (isHovered) return COLORS.hover;
     return COLORS.default;
-  }, [isSelected, isHovered]);
+  }
 
   // Animate scale and color
   useFrame(() => {
@@ -59,7 +60,7 @@ function FootBlockMesh({
     currentScale.current = THREE.MathUtils.lerp(
       currentScale.current,
       targetScale.current,
-      0.15
+      0.15,
     );
     meshRef.current.scale.setScalar(currentScale.current);
 
@@ -73,14 +74,14 @@ function FootBlockMesh({
       material.emissiveIntensity = THREE.MathUtils.lerp(
         material.emissiveIntensity,
         0.3,
-        0.1
+        0.1,
       );
     } else {
-      material.emissive.lerp(new THREE.Color("#000000"), 0.15);
+      material.emissive.lerp(COLORS.black, 0.15);
       material.emissiveIntensity = THREE.MathUtils.lerp(
         material.emissiveIntensity,
         0,
-        0.1
+        0.1,
       );
     }
 
@@ -125,7 +126,7 @@ function FootBlockMesh({
           color={COLORS.default}
           roughness={0.4}
           metalness={0.1}
-          emissive={new THREE.Color("#000000")}
+          emissive={COLORS.black}
           emissiveIntensity={0}
         />
       </mesh>
@@ -137,7 +138,7 @@ function FootBlockMesh({
             new THREE.BoxGeometry(
               block.size.width,
               block.size.height,
-              block.size.depth
+              block.size.depth,
             ),
           ]}
         />
@@ -147,7 +148,12 @@ function FootBlockMesh({
   );
 }
 
-export function FootModel({ onPointSelect, onLoad, onHoverChange, selectedRegionId }: FootModelProps) {
+export function FootModel({
+  onPointSelect,
+  onLoad,
+  onHoverChange,
+  selectedRegionId,
+}: FootModelProps) {
   const groupRef = useRef<THREE.Group>(null);
   const [hoveredBlockId, setHoveredBlockId] = useState<string | null>(null);
   const hoverTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -204,7 +210,8 @@ export function FootModel({ onPointSelect, onLoad, onHoverChange, selectedRegion
   useFrame((state) => {
     if (groupRef.current) {
       // Very subtle floating motion
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.005;
+      groupRef.current.position.y =
+        Math.sin(state.clock.elapsedTime * 0.5) * 0.005;
     }
   });
 

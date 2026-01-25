@@ -1,142 +1,160 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import type { PainEntry, CreatePainEntry } from "@/types";
+import type { CreatePainEntry, PainEntry } from "@/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-interface EntriesState {
-  entries: PainEntry[];
-  isLoading: boolean;
-  error: string | null;
+// Query keys
+const entriesQueryKey = ["entries"] as const;
+
+// API functions
+async function fetchEntries(): Promise<PainEntry[]> {
+  const response = await fetch("/api/entries");
+  if (!response.ok) {
+    throw new Error(`Failed to fetch entries: ${response.status}`);
+  }
+  return response.json();
+}
+
+async function createEntryAPI(entry: CreatePainEntry): Promise<PainEntry> {
+  const response = await fetch("/api/entries", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(entry),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to create entry: ${response.status}`);
+  }
+  return response.json();
+}
+
+async function updateEntryAPI(
+  id: string,
+  updates: Partial<CreatePainEntry>,
+): Promise<PainEntry> {
+  const response = await fetch(`/api/entries/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to update entry: ${response.status}`);
+  }
+  return response.json();
+}
+
+async function deleteEntryAPI(id: string): Promise<void> {
+  const response = await fetch(`/api/entries/${id}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to delete entry: ${response.status}`);
+  }
 }
 
 export function useEntries() {
-  const [state, setState] = useState<EntriesState>({
-    entries: [],
-    isLoading: true,
-    error: null,
+  const queryClient = useQueryClient();
+
+  // Fetch entries query
+  const {
+    data: entries = [],
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: entriesQueryKey,
+    queryFn: fetchEntries,
+    // Refetch every 30 seconds to keep data fresh
+    refetchInterval: 30 * 1000,
   });
 
-  const fetchEntries = useCallback(async () => {
-    setState(prev => ({ ...prev, isLoading: true, error: null }));
-
-    try {
-      const response = await fetch("/api/entries");
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch entries: ${response.status}`);
-      }
-
-      const entries: PainEntry[] = await response.json();
-      
-      setState({
-        entries,
-        isLoading: false,
-        error: null,
+  // Create entry mutation
+  const createEntryMutation = useMutation({
+    mutationFn: createEntryAPI,
+    onSuccess: (newEntry) => {
+      // Optimistically update the cache
+      queryClient.setQueryData<PainEntry[]>(entriesQueryKey, (old) => {
+        return old ? [newEntry, ...old] : [newEntry];
       });
-    } catch (error) {
-      setState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-      }));
-    }
-  }, []);
+      // Optionally refetch to ensure consistency
+      queryClient.invalidateQueries({ queryKey: entriesQueryKey });
+    },
+  });
 
-  const createEntry = useCallback(async (entry: CreatePainEntry): Promise<PainEntry | null> => {
-    try {
-      const response = await fetch("/api/entries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(entry),
+  // Update entry mutation
+  const updateEntryMutation = useMutation({
+    mutationFn: ({
+      id,
+      updates,
+    }: {
+      id: string;
+      updates: Partial<CreatePainEntry>;
+    }) => updateEntryAPI(id, updates),
+    onSuccess: (updatedEntry) => {
+      // Optimistically update the cache
+      queryClient.setQueryData<PainEntry[]>(entriesQueryKey, (old) => {
+        return old
+          ? old.map((e) => (e.id === updatedEntry.id ? updatedEntry : e))
+          : [updatedEntry];
       });
+      // Optionally refetch to ensure consistency
+      queryClient.invalidateQueries({ queryKey: entriesQueryKey });
+    },
+  });
 
-      if (!response.ok) {
-        throw new Error(`Failed to create entry: ${response.status}`);
-      }
-
-      const newEntry: PainEntry = await response.json();
-      
-      // Add to local state
-      setState(prev => ({
-        ...prev,
-        entries: [newEntry, ...prev.entries],
-      }));
-
-      return newEntry;
-    } catch (error) {
-      console.error("Failed to create entry:", error);
-      return null;
-    }
-  }, []);
-
-  const updateEntry = useCallback(async (
-    id: string,
-    updates: Partial<CreatePainEntry>
-  ): Promise<PainEntry | null> => {
-    try {
-      const response = await fetch(`/api/entries/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updates),
+  // Delete entry mutation
+  const deleteEntryMutation = useMutation({
+    mutationFn: deleteEntryAPI,
+    onSuccess: (_, deletedId) => {
+      // Optimistically update the cache
+      queryClient.setQueryData<PainEntry[]>(entriesQueryKey, (old) => {
+        return old ? old.filter((e) => e.id !== deletedId) : [];
       });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update entry: ${response.status}`);
-      }
-
-      const updatedEntry: PainEntry = await response.json();
-      
-      // Update local state
-      setState(prev => ({
-        ...prev,
-        entries: prev.entries.map(e => 
-          e.id === id ? updatedEntry : e
-        ),
-      }));
-
-      return updatedEntry;
-    } catch (error) {
-      console.error("Failed to update entry:", error);
-      return null;
-    }
-  }, []);
-
-  const deleteEntry = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      const response = await fetch(`/api/entries/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete entry: ${response.status}`);
-      }
-
-      // Remove from local state
-      setState(prev => ({
-        ...prev,
-        entries: prev.entries.filter(e => e.id !== id),
-      }));
-
-      return true;
-    } catch (error) {
-      console.error("Failed to delete entry:", error);
-      return false;
-    }
-  }, []);
+      // Optionally refetch to ensure consistency
+      queryClient.invalidateQueries({ queryKey: entriesQueryKey });
+    },
+  });
 
   // Get the most recent entry
-  const lastEntry = state.entries[0] ?? null;
-
-  useEffect(() => {
-    fetchEntries();
-  }, [fetchEntries]);
+  const lastEntry = entries[0] ?? null;
 
   return {
-    ...state,
+    entries,
+    isLoading,
+    error: error
+      ? error instanceof Error
+        ? error.message
+        : "Unknown error"
+      : null,
     lastEntry,
-    refresh: fetchEntries,
-    createEntry,
-    updateEntry,
-    deleteEntry,
+    refresh: refetch,
+    createEntry: async (entry: CreatePainEntry): Promise<PainEntry | null> => {
+      try {
+        const result = await createEntryMutation.mutateAsync(entry);
+        return result;
+      } catch (error) {
+        console.error("Failed to create entry:", error);
+        return null;
+      }
+    },
+    updateEntry: async (
+      id: string,
+      updates: Partial<CreatePainEntry>,
+    ): Promise<PainEntry | null> => {
+      try {
+        const result = await updateEntryMutation.mutateAsync({ id, updates });
+        return result;
+      } catch (error) {
+        console.error("Failed to update entry:", error);
+        return null;
+      }
+    },
+    deleteEntry: async (id: string): Promise<boolean> => {
+      try {
+        await deleteEntryMutation.mutateAsync(id);
+        return true;
+      } catch {
+        return false;
+      }
+    },
   };
 }

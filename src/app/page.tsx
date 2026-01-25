@@ -1,21 +1,14 @@
 "use client";
 
-import {
-  CalendarHeatmap,
-  LunarPhaseChart,
-  PainTimeline,
-  PressureCorrelation,
-} from "@/components/charts";
-import {
-  CurrentConditions,
-  InsightCards,
-  PainOverview,
-} from "@/components/dashboard";
-import { EntryList } from "@/components/entries";
-import { FootScene } from "@/components/foot-model";
-import { PainSlider, QuickAddFAB } from "@/components/pain";
+import { CurrentConditions } from "@/components/dashboard/CurrentConditions";
+import { InsightCards } from "@/components/dashboard/InsightCards";
+import { PainOverview } from "@/components/dashboard/PainOverview";
+import { EntryList } from "@/components/entries/EntryList";
+import { PainSlider } from "@/components/pain/PainSlider";
+import { QuickAddFAB } from "@/components/pain/QuickAddFAB";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useEntries } from "@/hooks/useEntries";
 import { useEnvironmentalData } from "@/hooks/useEnvironmentalData";
 import { useGeolocation } from "@/hooks/useGeolocation";
@@ -23,17 +16,108 @@ import type { CreatePainEntry, PainEntry, PainPoint } from "@/types";
 import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+
+// Dynamic imports for heavy components
+const FootScene = dynamic(
+  () => import("@/components/foot-model/FootScene").then((m) => m.FootScene),
+  {
+    ssr: false,
+    loading: () => (
+      <div className='w-full aspect-square max-h-[400px] flex items-center justify-center'>
+        <Skeleton className='w-32 h-32 rounded-full' />
+      </div>
+    ),
+  },
+);
+
+const PainTimelineDynamic = dynamic(
+  () => import("@/components/charts/PainTimeline").then((m) => m.PainTimeline),
+  {
+    loading: () => <Skeleton className='w-full h-64' />,
+  },
+);
+
+const PressureCorrelationDynamic = dynamic(
+  () =>
+    import("@/components/charts/PressureCorrelation").then(
+      (m) => m.PressureCorrelation,
+    ),
+  {
+    loading: () => <Skeleton className='w-full h-64' />,
+  },
+);
+
+const LunarPhaseChartDynamic = dynamic(
+  () =>
+    import("@/components/charts/LunarPhaseChart").then(
+      (m) => m.LunarPhaseChart,
+    ),
+  {
+    loading: () => <Skeleton className='w-full h-64' />,
+  },
+);
+
+const CalendarHeatmapDynamic = dynamic(
+  () =>
+    import("@/components/charts/CalendarHeatmap").then(
+      (m) => m.CalendarHeatmap,
+    ),
+  {
+    loading: () => <Skeleton className='w-full h-64' />,
+  },
+);
 
 export default function HomePage() {
   const t = useTranslations();
+
+  // #region agent log
+  useEffect(() => {
+    fetch("http://127.0.0.1:7242/ingest/e341db58-6e00-4988-9b30-182f7e67fa87", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        location: "page.tsx:HomePage-mount",
+        message: "HomePage component mounted",
+        data: {},
+        timestamp: Date.now(),
+        sessionId: "debug-session",
+        runId: "run1",
+        hypothesisId: "C",
+      }),
+    }).catch(() => {});
+  }, []);
+  // #endregion
 
   // Geolocation and environmental data
   const { coordinates } = useGeolocation();
   const { data: environmentalData, isLoading: isLoadingEnv } =
     useEnvironmentalData(coordinates);
+
+  // #region agent log
+  useEffect(() => {
+    fetch("http://127.0.0.1:7242/ingest/e341db58-6e00-4988-9b30-182f7e67fa87", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        location: "page.tsx:HomePage-render",
+        message: "HomePage render with data",
+        data: {
+          hasCoordinates: !!coordinates,
+          hasEnvData: !!environmentalData,
+          isLoadingEnv,
+        },
+        timestamp: Date.now(),
+        sessionId: "debug-session",
+        runId: "run1",
+        hypothesisId: "D",
+      }),
+    }).catch(() => {});
+  }, [coordinates, environmentalData, isLoadingEnv]);
+  // #endregion
 
   // Entries state
   const {
@@ -53,16 +137,16 @@ export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Handle point selection on the 3D model
-  const handlePointSelect = useCallback((point: PainPoint) => {
+  function handlePointSelect(point: PainPoint) {
     setSelectedPoint(point);
     // Haptic feedback
     if (navigator.vibrate) {
       navigator.vibrate(30);
     }
-  }, []);
+  }
 
   // Submit new entry
-  const handleSubmit = useCallback(async () => {
+  async function handleSubmit() {
     if (!selectedPoint) {
       toast.error(t("entry.selectPoint"));
       return;
@@ -106,17 +190,10 @@ export default function HomePage() {
     } finally {
       setIsSubmitting(false);
     }
-  }, [
-    selectedPoint,
-    painLevel,
-    environmentalData,
-    coordinates,
-    createEntry,
-    t,
-  ]);
+  }
 
   // Quick add - duplicate last entry with fresh environmental data
-  const handleQuickAdd = useCallback(async (): Promise<boolean> => {
+  async function handleQuickAdd(): Promise<boolean> {
     if (!lastEntry) {
       toast.error("No previous entry to duplicate");
       return false;
@@ -147,27 +224,24 @@ export default function HomePage() {
 
     toast.error(t("entry.error"));
     return false;
-  }, [lastEntry, environmentalData, coordinates, createEntry, t]);
+  }
 
   // Edit entry
-  const handleEdit = useCallback((entry: PainEntry) => {
+  function handleEdit(entry: PainEntry) {
     setEditingEntry(entry);
-  }, []);
+  }
 
   // Update entry
-  const handleUpdateEntry = useCallback(
-    async (entry: PainEntry) => {
-      const result = await updateEntry(entry.id, {
-        pain_level: entry.pain_level,
-      });
+  async function handleUpdateEntry(entry: PainEntry) {
+    const result = await updateEntry(entry.id, {
+      pain_level: entry.pain_level,
+    });
 
-      if (result) {
-        setEditingEntry(null);
-        toast.success("Entry updated");
-      }
-    },
-    [updateEntry],
-  );
+    if (result) {
+      setEditingEntry(null);
+      toast.success("Entry updated");
+    }
+  }
 
   return (
     <div className='min-h-screen bg-background animated-gradient noise-overlay relative'>
@@ -282,20 +356,23 @@ export default function HomePage() {
           className='space-y-6'
         >
           {/* Pain Timeline - Full width */}
-          <PainTimeline entries={entries} isLoading={isLoadingEntries} />
+          <PainTimelineDynamic entries={entries} isLoading={isLoadingEntries} />
 
           {/* Correlation Charts Grid */}
           <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
-            <PressureCorrelation
+            <PressureCorrelationDynamic
               entries={entries}
               isLoading={isLoadingEntries}
             />
-            <LunarPhaseChart
+            <LunarPhaseChartDynamic
               entries={entries}
               isLoading={isLoadingEntries}
               currentPhase={environmentalData?.lunar.phase}
             />
-            <CalendarHeatmap entries={entries} isLoading={isLoadingEntries} />
+            <CalendarHeatmapDynamic
+              entries={entries}
+              isLoading={isLoadingEntries}
+            />
           </div>
 
           {/* Insights */}
@@ -348,9 +425,9 @@ function EditDialog({
   const t = useTranslations();
   const [painLevel, setPainLevel] = useState(entry.pain_level);
 
-  const handleSave = useCallback(() => {
+  function handleSave() {
     onSave({ ...entry, pain_level: painLevel });
-  }, [entry, painLevel, onSave]);
+  }
 
   return (
     <div className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm'>

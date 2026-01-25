@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import type { Coordinates } from "@/types";
 import type { HistoricalWeatherPoint } from "@/lib/environmental/history";
+import type { Coordinates } from "@/types";
+import { useEffect, useState } from "react";
 
 interface HistoricalWeatherState {
   data: HistoricalWeatherPoint[];
@@ -12,7 +12,7 @@ interface HistoricalWeatherState {
 
 export function useHistoricalWeather(
   coordinates: Coordinates | null,
-  days: number = 30
+  days: number = 30,
 ) {
   const [state, setState] = useState<HistoricalWeatherState>({
     data: [],
@@ -20,7 +20,7 @@ export function useHistoricalWeather(
     error: null,
   });
 
-  const fetchData = useCallback(async () => {
+  async function fetchData() {
     if (!coordinates) return;
 
     setState((prev) => ({ ...prev, isLoading: true, error: null }));
@@ -54,13 +54,14 @@ export function useHistoricalWeather(
         error: error instanceof Error ? error.message : "Unknown error",
       }));
     }
-  }, [coordinates, days]);
+  }
 
   useEffect(() => {
     if (coordinates) {
       fetchData();
     }
-  }, [coordinates, days, fetchData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coordinates?.latitude, coordinates?.longitude, days]);
 
   return {
     ...state,

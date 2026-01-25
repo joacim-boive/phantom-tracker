@@ -1,23 +1,23 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { PainEntry } from "@/types";
+import { addDays, eachDayOfInterval, format, subDays } from "date-fns";
 import { motion } from "framer-motion";
+import { Calendar, ChevronLeft, ChevronRight, TrendingUp } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useState } from "react";
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from "recharts";
-import { format, subDays, eachDayOfInterval, addDays } from "date-fns";
-import { Calendar, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useTranslations } from "next-intl";
-import type { PainEntry } from "@/types";
 
 interface PainTimelineProps {
   entries: PainEntry[];
@@ -32,19 +32,21 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
   const [endDateOffset, setEndDateOffset] = useState<number>(0); // Days offset from today for the end date (0 = today, positive = past)
 
   // Calculate the current date range
-  const currentDateRange = useMemo(() => {
+  function calculateDateRange() {
     const baseEndDate = new Date();
     const endDate = addDays(baseEndDate, -endDateOffset);
     const startDate = subDays(endDate, timeRange);
     return { startDate, endDate };
-  }, [timeRange, endDateOffset]);
+  }
 
-  const chartData = useMemo(() => {
+  const currentDateRange = calculateDateRange();
+
+  function calculateChartData() {
     const { startDate, endDate } = currentDateRange;
-    
+
     // Create array of all days in range
     const days = eachDayOfInterval({ start: startDate, end: endDate });
-    
+
     // Group entries by day
     const entriesByDay = new Map<string, PainEntry[]>();
     entries.forEach((entry) => {
@@ -54,20 +56,23 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
       }
       entriesByDay.get(day)!.push(entry);
     });
-    
+
     // Build chart data
     return days.map((day) => {
       const dayKey = format(day, "yyyy-MM-dd");
       const dayEntries = entriesByDay.get(dayKey) ?? [];
-      
-      const avgPain = dayEntries.length > 0
-        ? dayEntries.reduce((sum, e) => sum + e.pain_level, 0) / dayEntries.length
-        : null;
-      
-      const maxPain = dayEntries.length > 0
-        ? Math.max(...dayEntries.map((e) => e.pain_level))
-        : null;
-      
+
+      const avgPain =
+        dayEntries.length > 0
+          ? dayEntries.reduce((sum, e) => sum + e.pain_level, 0) /
+            dayEntries.length
+          : null;
+
+      const maxPain =
+        dayEntries.length > 0
+          ? Math.max(...dayEntries.map((e) => e.pain_level))
+          : null;
+
       return {
         date: format(day, "MMM d"),
         fullDate: dayKey,
@@ -76,33 +81,36 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
         count: dayEntries.length,
       };
     });
-  }, [entries, currentDateRange]);
+  }
+
+  const chartData = calculateChartData();
 
   // Calculate date range for display
-  const dateRangeDisplay = useMemo(() => {
-    const { startDate, endDate } = currentDateRange;
-    return {
-      start: format(startDate, "MMM d"),
-      end: format(endDate, "MMM d"),
-    };
-  }, [currentDateRange]);
+  const dateRangeDisplay = {
+    start: format(currentDateRange.startDate, "MMM d"),
+    end: format(currentDateRange.endDate, "MMM d"),
+  };
 
   // Find the oldest entry date to limit backward navigation
-  const oldestEntryDate = useMemo(() => {
+  function getOldestEntryDate() {
     if (entries.length === 0) return null;
     const dates = entries.map((e) => new Date(e.created_at).getTime());
     return new Date(Math.min(...dates));
-  }, [entries]);
+  }
+
+  const oldestEntryDate = getOldestEntryDate();
 
   // Check if we can navigate forward (towards today)
   const canNavigateForward = endDateOffset > 0;
 
   // Check if we can navigate backward (into the past)
-  const canNavigateBackward = useMemo(() => {
+  function checkCanNavigateBackward() {
     if (!oldestEntryDate) return false;
     const { startDate } = currentDateRange;
     return startDate > oldestEntryDate;
-  }, [oldestEntryDate, currentDateRange]);
+  }
+
+  const canNavigateBackward = checkCanNavigateBackward();
 
   const handlePrevious = () => {
     // Move the entire range backward by the time range
@@ -127,14 +135,16 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     newEndDate.setHours(0, 0, 0, 0);
-    
+
     // Calculate days difference (positive = past, negative = future)
-    const daysDiff = Math.ceil((today.getTime() - newEndDate.getTime()) / (1000 * 60 * 60 * 24));
-    
+    const daysDiff = Math.ceil(
+      (today.getTime() - newEndDate.getTime()) / (1000 * 60 * 60 * 24),
+    );
+
     // If new end date is in the future, clamp to today (offset = 0)
     // Otherwise, use the calculated offset
     const newEndDateOffset = Math.max(0, daysDiff);
-    
+
     setTimeRange(newRange);
     setEndDateOffset(newEndDateOffset);
   };
@@ -143,10 +153,10 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
     return (
       <Card>
         <CardHeader>
-          <Skeleton className="h-6 w-40" />
+          <Skeleton className='h-6 w-40' />
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-64 w-full" />
+          <Skeleton className='h-64 w-full' />
         </CardContent>
       </Card>
     );
@@ -156,22 +166,22 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
 
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <div className="flex flex-row items-center justify-between mb-2">
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
+      <CardHeader className='pb-2'>
+        <div className='flex flex-row items-center justify-between mb-2'>
+          <CardTitle className='flex items-center gap-2'>
+            <TrendingUp className='w-5 h-5 text-primary' />
             {t("painTimeline")}
           </CardTitle>
-          
+
           {/* Time range selector */}
-          <div className="flex gap-1">
+          <div className='flex gap-1'>
             {([7, 30, 90] as TimeRange[]).map((range) => (
               <Button
                 key={range}
                 variant={timeRange === range ? "secondary" : "ghost"}
-                size="sm"
+                size='sm'
                 onClick={() => handleTimeRangeChange(range)}
-                className="text-xs"
+                className='text-xs'
               >
                 {range}d
               </Button>
@@ -180,46 +190,46 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
         </div>
 
         {/* Navigation controls */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className='flex items-center justify-between'>
+          <div className='flex items-center gap-2'>
             <Button
-              variant="ghost"
-              size="sm"
+              variant='ghost'
+              size='sm'
               onClick={handlePrevious}
               disabled={!canNavigateBackward}
-              className="h-8 px-2"
+              className='h-8 px-2'
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className='w-4 h-4' />
             </Button>
             <Button
-              variant="ghost"
-              size="sm"
+              variant='ghost'
+              size='sm'
               onClick={handleNext}
               disabled={!canNavigateForward}
-              className="h-8 px-2"
+              className='h-8 px-2'
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className='w-4 h-4' />
             </Button>
             <Button
-              variant="ghost"
-              size="sm"
+              variant='ghost'
+              size='sm'
               onClick={handleToday}
               disabled={endDateOffset === 0}
-              className="h-8 px-2 text-xs"
+              className='h-8 px-2 text-xs'
             >
               Today
             </Button>
           </div>
-          <div className="text-sm text-muted-foreground">
+          <div className='text-sm text-muted-foreground'>
             {dateRangeDisplay.start} - {dateRangeDisplay.end}
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {!hasData ? (
-          <div className="h-64 flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+          <div className='h-64 flex items-center justify-center text-muted-foreground'>
+            <div className='text-center'>
+              <Calendar className='w-12 h-12 mx-auto mb-2 opacity-50' />
               <p>No data for this time range</p>
             </div>
           </div>
@@ -227,33 +237,41 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="h-64"
+            className='h-64'
           >
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width='100%' height='100%'>
               <AreaChart data={chartData}>
                 <defs>
-                  <linearGradient id="painGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--chart-weather-color)" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="var(--chart-weather-color)" stopOpacity={0} />
+                  <linearGradient id='painGradient' x1='0' y1='0' x2='0' y2='1'>
+                    <stop
+                      offset='5%'
+                      stopColor='var(--chart-weather-color)'
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset='95%'
+                      stopColor='var(--chart-weather-color)'
+                      stopOpacity={0}
+                    />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke="hsl(var(--border))"
+                  strokeDasharray='3 3'
+                  stroke='hsl(var(--border))'
                   vertical={false}
                 />
                 <XAxis
-                  dataKey="date"
-                  stroke="var(--chart-axis-label)"
+                  dataKey='date'
+                  stroke='var(--chart-axis-label)'
                   tick={{ fill: "var(--chart-axis-label)" }}
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
-                  interval="preserveStartEnd"
+                  interval='preserveStartEnd'
                 />
                 <YAxis
                   domain={[0, 10]}
-                  stroke="var(--chart-axis-label)"
+                  stroke='var(--chart-axis-label)'
                   tick={{ fill: "var(--chart-axis-label)" }}
                   fontSize={12}
                   tickLine={false}
@@ -265,30 +283,42 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
                     if (!active || !payload?.length) return null;
                     const data = payload[0].payload;
                     return (
-                      <div className="bg-popover text-popover-foreground border rounded-lg shadow-lg p-3 text-sm">
-                        <p className="font-medium">{label}</p>
+                      <div className='bg-popover text-popover-foreground border rounded-lg shadow-lg p-3 text-sm'>
+                        <p className='font-medium'>{label}</p>
                         {data.avgPain !== null ? (
                           <>
-                            <p>Avg pain: <span className="font-bold">{data.avgPain}/10</span></p>
-                            <p>Max pain: <span className="font-bold">{data.maxPain}/10</span></p>
-                            <p className="text-muted-foreground">{data.count} entries</p>
+                            <p>
+                              Avg pain:{" "}
+                              <span className='font-bold'>
+                                {data.avgPain}/10
+                              </span>
+                            </p>
+                            <p>
+                              Max pain:{" "}
+                              <span className='font-bold'>
+                                {data.maxPain}/10
+                              </span>
+                            </p>
+                            <p className='text-muted-foreground'>
+                              {data.count} entries
+                            </p>
                           </>
                         ) : (
-                          <p className="text-muted-foreground">No entries</p>
+                          <p className='text-muted-foreground'>No entries</p>
                         )}
                       </div>
                     );
                   }}
                 />
                 <Area
-                  type="monotone"
-                  dataKey="avgPain"
-                  stroke="var(--chart-weather-color)"
+                  type='monotone'
+                  dataKey='avgPain'
+                  stroke='var(--chart-weather-color)'
                   strokeWidth={2}
-                  fill="url(#painGradient)"
+                  fill='url(#painGradient)'
                   connectNulls
                   animationDuration={1000}
-                  animationEasing="ease-out"
+                  animationEasing='ease-out'
                 />
               </AreaChart>
             </ResponsiveContainer>
