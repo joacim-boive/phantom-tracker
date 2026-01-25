@@ -41,6 +41,7 @@ export interface EnvironmentalData {
   solar: SolarData;
   tidal: TidalData | null;
   temporal: TemporalData;
+  location_name: string | null;
 }
 
 export interface WeatherData {
@@ -57,6 +58,7 @@ export interface WeatherData {
   visibility: number;
   aqi: number | null;
   aqi_label: string | null;
+  location_name: string | null;
 }
 
 export interface LunarData {

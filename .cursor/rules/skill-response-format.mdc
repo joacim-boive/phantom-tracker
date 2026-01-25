@@ -1,0 +1,32 @@
+---
+description: Start responses with light bulb emoji when using a Skill to solve a task
+alwaysApply: true
+---
+
+# Skill Response Format
+
+When using a Skill to solve a task, always start the response with the light bulb emoji (💡) and explicitly mention the skill name being used.
+
+## Examples
+
+**When using a Skill:**
+
+```
+💡 I'll use the [skill name] skill to help with this task...
+```
+
+**Example:**
+
+```
+💡 I'll use the hello-world skill to display "Hello World" in ASCII art and fetch system information...
+```
+
+**When not using a Skill:**
+
+```
+I'll help you with this task...
+```
+
+## Purpose
+
+This visual indicator helps identify when specialized skills are being applied to provide domain-specific guidance or follow established patterns.

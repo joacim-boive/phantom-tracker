@@ -11,8 +11,8 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { format, subDays, eachDayOfInterval } from "date-fns";
-import { Calendar, TrendingUp } from "lucide-react";
+import { format, subDays, eachDayOfInterval, addDays } from "date-fns";
+import { Calendar, TrendingUp, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,10 +29,18 @@ type TimeRange = 7 | 30 | 90;
 export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
   const t = useTranslations("dashboard");
   const [timeRange, setTimeRange] = useState<TimeRange>(30);
+  const [endDateOffset, setEndDateOffset] = useState<number>(0); // Days offset from today for the end date (0 = today, positive = past)
+
+  // Calculate the current date range
+  const currentDateRange = useMemo(() => {
+    const baseEndDate = new Date();
+    const endDate = addDays(baseEndDate, -endDateOffset);
+    const startDate = subDays(endDate, timeRange);
+    return { startDate, endDate };
+  }, [timeRange, endDateOffset]);
 
   const chartData = useMemo(() => {
-    const endDate = new Date();
-    const startDate = subDays(endDate, timeRange);
+    const { startDate, endDate } = currentDateRange;
     
     // Create array of all days in range
     const days = eachDayOfInterval({ start: startDate, end: endDate });
@@ -68,7 +76,68 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
         count: dayEntries.length,
       };
     });
-  }, [entries, timeRange]);
+  }, [entries, currentDateRange]);
+
+  // Calculate date range for display
+  const dateRangeDisplay = useMemo(() => {
+    const { startDate, endDate } = currentDateRange;
+    return {
+      start: format(startDate, "MMM d"),
+      end: format(endDate, "MMM d"),
+    };
+  }, [currentDateRange]);
+
+  // Find the oldest entry date to limit backward navigation
+  const oldestEntryDate = useMemo(() => {
+    if (entries.length === 0) return null;
+    const dates = entries.map((e) => new Date(e.created_at).getTime());
+    return new Date(Math.min(...dates));
+  }, [entries]);
+
+  // Check if we can navigate forward (towards today)
+  const canNavigateForward = endDateOffset > 0;
+
+  // Check if we can navigate backward (into the past)
+  const canNavigateBackward = useMemo(() => {
+    if (!oldestEntryDate) return false;
+    const { startDate } = currentDateRange;
+    return startDate > oldestEntryDate;
+  }, [oldestEntryDate, currentDateRange]);
+
+  const handlePrevious = () => {
+    // Move the entire range backward by the time range
+    setEndDateOffset((prev) => prev + timeRange);
+  };
+
+  const handleNext = () => {
+    // Move the entire range forward by the time range
+    setEndDateOffset((prev) => Math.max(0, prev - timeRange));
+  };
+
+  const handleToday = () => {
+    setEndDateOffset(0);
+  };
+
+  const handleTimeRangeChange = (newRange: TimeRange) => {
+    // Keep the start date the same, adjust the end date
+    // The original logic uses subDays(endDate, timeRange) to get startDate,
+    // so to reverse it: endDate = addDays(startDate, timeRange)
+    const { startDate } = currentDateRange;
+    const newEndDate = addDays(startDate, newRange);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    newEndDate.setHours(0, 0, 0, 0);
+    
+    // Calculate days difference (positive = past, negative = future)
+    const daysDiff = Math.ceil((today.getTime() - newEndDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // If new end date is in the future, clamp to today (offset = 0)
+    // Otherwise, use the calculated offset
+    const newEndDateOffset = Math.max(0, daysDiff);
+    
+    setTimeRange(newRange);
+    setEndDateOffset(newEndDateOffset);
+  };
 
   if (isLoading) {
     return (
@@ -87,25 +156,63 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-primary" />
-          {t("painTimeline")}
-        </CardTitle>
-        
-        {/* Time range selector */}
-        <div className="flex gap-1">
-          {([7, 30, 90] as TimeRange[]).map((range) => (
+      <CardHeader className="pb-2">
+        <div className="flex flex-row items-center justify-between mb-2">
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" />
+            {t("painTimeline")}
+          </CardTitle>
+          
+          {/* Time range selector */}
+          <div className="flex gap-1">
+            {([7, 30, 90] as TimeRange[]).map((range) => (
+              <Button
+                key={range}
+                variant={timeRange === range ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => handleTimeRangeChange(range)}
+                className="text-xs"
+              >
+                {range}d
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Navigation controls */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <Button
-              key={range}
-              variant={timeRange === range ? "secondary" : "ghost"}
+              variant="ghost"
               size="sm"
-              onClick={() => setTimeRange(range)}
-              className="text-xs"
+              onClick={handlePrevious}
+              disabled={!canNavigateBackward}
+              className="h-8 px-2"
             >
-              {range}d
+              <ChevronLeft className="w-4 h-4" />
             </Button>
-          ))}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleNext}
+              disabled={!canNavigateForward}
+              className="h-8 px-2"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleToday}
+              disabled={endDateOffset === 0}
+              className="h-8 px-2 text-xs"
+            >
+              Today
+            </Button>
+          </div>
+          <div className="text-sm text-muted-foreground">
+            {dateRangeDisplay.start} - {dateRangeDisplay.end}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -126,8 +233,8 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="painGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    <stop offset="5%" stopColor="var(--chart-weather-color)" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="var(--chart-weather-color)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid
@@ -137,7 +244,8 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
                 />
                 <XAxis
                   dataKey="date"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--chart-axis-label)"
+                  tick={{ fill: "var(--chart-axis-label)" }}
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
@@ -145,7 +253,8 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
                 />
                 <YAxis
                   domain={[0, 10]}
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--chart-axis-label)"
+                  tick={{ fill: "var(--chart-axis-label)" }}
                   fontSize={12}
                   tickLine={false}
                   axisLine={false}
@@ -174,7 +283,7 @@ export function PainTimeline({ entries, isLoading }: PainTimelineProps) {
                 <Area
                   type="monotone"
                   dataKey="avgPain"
-                  stroke="hsl(var(--primary))"
+                  stroke="var(--chart-weather-color)"
                   strokeWidth={2}
                   fill="url(#painGradient)"
                   connectNulls

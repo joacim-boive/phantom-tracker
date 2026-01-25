@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { motion } from "framer-motion";
+import { useMemo, useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ScatterChart,
   Scatter,
@@ -12,9 +12,10 @@ import {
   ResponsiveContainer,
   ReferenceLine,
 } from "recharts";
-import { Gauge, TrendingUp } from "lucide-react";
+import { Gauge, TrendingUp, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { getPainColor } from "@/lib/foot-regions";
 import type { PainEntry } from "@/types";
 
@@ -24,6 +25,22 @@ interface PressureCorrelationProps {
 }
 
 export function PressureCorrelation({ entries, isLoading }: PressureCorrelationProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [menuOpen]);
+
   const { chartData, correlation, avgPressure } = useMemo(() => {
     if (entries.length === 0) {
       return { chartData: [], correlation: 0, avgPressure: 1013 };
@@ -79,11 +96,32 @@ export function PressureCorrelation({ entries, isLoading }: PressureCorrelationP
         </CardTitle>
         
         {hasData && (
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Correlation:</span>
-            <span className={correlation < -0.3 ? "text-emerald-500" : correlation > 0.3 ? "text-rose-500" : "text-muted-foreground"}>
-              {correlation > 0 ? "+" : ""}{correlation}
-            </span>
+          <div className="relative" ref={menuRef}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="h-8 px-2 text-sm"
+            >
+              <ChevronDown className={`w-4 h-4 transition-transform ${menuOpen ? "rotate-180" : ""}`} />
+            </Button>
+            <AnimatePresence>
+              {menuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute right-0 top-full mt-1 bg-popover border rounded-lg shadow-lg p-3 z-50 min-w-[180px]"
+                >
+                  <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Correlation:</span>
+                    <span className={correlation < -0.3 ? "text-emerald-500" : correlation > 0.3 ? "text-rose-500" : "text-foreground font-medium"}>
+                      {correlation > 0 ? "+" : ""}{correlation}
+                    </span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </CardHeader>
@@ -114,7 +152,8 @@ export function PressureCorrelation({ entries, isLoading }: PressureCorrelationP
                   name="Pressure"
                   unit=" hPa"
                   domain={["auto", "auto"]}
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--chart-axis-label)"
+                  tick={{ fill: "var(--chart-axis-label)" }}
                   fontSize={12}
                   tickLine={false}
                 />
@@ -123,7 +162,8 @@ export function PressureCorrelation({ entries, isLoading }: PressureCorrelationP
                   dataKey="painLevel"
                   name="Pain Level"
                   domain={[0, 10]}
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--chart-axis-label)"
+                  tick={{ fill: "var(--chart-axis-label)" }}
                   fontSize={12}
                   tickLine={false}
                   width={30}
@@ -142,18 +182,19 @@ export function PressureCorrelation({ entries, isLoading }: PressureCorrelationP
                 />
                 <ReferenceLine
                   x={avgPressure}
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke="var(--chart-weather-color)"
                   strokeDasharray="5 5"
+                  strokeOpacity={0.5}
                   label={{
                     value: `Avg: ${avgPressure}`,
                     position: "top",
-                    fill: "hsl(var(--muted-foreground))",
+                    fill: "var(--chart-axis-label)",
                     fontSize: 10,
                   }}
                 />
                 <Scatter
                   data={chartData}
-                  fill="hsl(var(--primary))"
+                  fill="var(--chart-weather-color)"
                   fillOpacity={0.7}
                   animationDuration={1000}
                 />
