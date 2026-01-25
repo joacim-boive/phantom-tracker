@@ -349,3 +349,21 @@
 {"location":"FootScene.tsx:handleContextLost-auto-retry","message":"Auto-retrying after context loss","data":{"retryCount":1,"maxRetries":3},"timestamp":1769347260297,"sessionId":"debug-session"}
 {"location":"FootScene.tsx:handleCanvasCreated","message":"Canvas created","data":{"hasCanvas":true,"canvasId":""},"timestamp":1769347260377,"sessionId":"debug-session"}
 {"location":"FootScene.tsx:handleCanvasCreated-listeners","message":"Adding context loss/restore listeners","data":{"remountKey":1,"hasCanvas":true},"timestamp":1769347260378,"sessionId":"debug-session"}
+{"location":"page.tsx:HomePage-render","message":"HomePage render with data","data":{"hasCoordinates":true,"hasEnvData":true,"isLoadingEnv":false},"timestamp":1769348025498,"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}
+{"location":"page.tsx:HomePage-mount","message":"HomePage component mounted","data":{},"timestamp":1769349277146,"sessionId":"debug-session","runId":"run1","hypothesisId":"C"}
+{"location":"page.tsx:HomePage-render","message":"HomePage render with data","data":{"hasCoordinates":false,"hasEnvData":false,"isLoadingEnv":false},"timestamp":1769349277147,"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}
+{"location":"page.tsx:HomePage-render","message":"HomePage render with data","data":{"hasCoordinates":true,"hasEnvData":false,"isLoadingEnv":true},"timestamp":1769349277358,"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}
+{"location":"FootScene.tsx:component-mount","message":"FootScene component mounted","data":{"remountKey":0,"contextLost":false},"timestamp":1769349277596,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:component-mount","message":"FootScene component mounted","data":{"remountKey":0,"contextLost":false},"timestamp":1769349277599,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:handleCanvasCreated","message":"Canvas created","data":{"hasCanvas":true,"canvasId":""},"timestamp":1769349277681,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:handleCanvasCreated-listeners","message":"Adding context loss/restore listeners","data":{"remountKey":0,"hasCanvas":true},"timestamp":1769349277682,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:component-mount","message":"FootScene component mounted","data":{"remountKey":0,"contextLost":false},"timestamp":1769349278038,"sessionId":"debug-session"}
+{"location":"page.tsx:HomePage-render","message":"HomePage render with data","data":{"hasCoordinates":true,"hasEnvData":true,"isLoadingEnv":false},"timestamp":1769349278442,"sessionId":"debug-session","runId":"run1","hypothesisId":"D"}
+{"location":"FootScene.tsx:handleCanvasCreated","message":"Canvas created","data":{"hasCanvas":true,"canvasId":""},"timestamp":1769349278469,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:handleCanvasCreated-listeners","message":"Adding context loss/restore listeners","data":{"remountKey":0,"hasCanvas":true},"timestamp":1769349278469,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:handleContextLost","message":"WebGL context lost event fired","data":{"remountKey":0,"eventType":"webglcontextlost"},"timestamp":1769349278550,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:handleContextLost-check","message":"Checking if context is actually lost","data":{"remountKey":0,"isActuallyLost":true,"hasGL":true},"timestamp":1769349278550,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:handleContextLost-delayed-check","message":"Delayed check after context loss","data":{"remountKey":0,"stillLost":true,"hasGLAfter":true,"retryCount":0},"timestamp":1769349278852,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:handleContextLost-auto-retry","message":"Auto-retrying after context loss","data":{"retryCount":1,"maxRetries":3},"timestamp":1769349278852,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:handleCanvasCreated","message":"Canvas created","data":{"hasCanvas":true,"canvasId":""},"timestamp":1769349278949,"sessionId":"debug-session"}
+{"location":"FootScene.tsx:handleCanvasCreated-listeners","message":"Adding context loss/restore listeners","data":{"remountKey":1,"hasCanvas":true},"timestamp":1769349278949,"sessionId":"debug-session"}

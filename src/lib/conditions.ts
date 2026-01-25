@@ -1,3 +1,4 @@
+import type { PainEntry } from "@/types";
 import {
   Cloud,
   Droplets,
@@ -12,7 +13,6 @@ import {
   Wind,
   type LucideIcon,
 } from "lucide-react";
-import type { PainEntry } from "@/types";
 
 export type ConditionType =
   | "temperature"
@@ -55,7 +55,8 @@ export const conditionConfig: Record<ConditionType, ConditionConfig> = {
       "conditions.temperature.fact3",
       "conditions.temperature.fact4",
     ],
-    getValueFromEntry: (entry) => entry.environmental_data.weather.temperature,
+    getValueFromEntry: (entry) =>
+      entry.environmental_data.weather?.temperature ?? null,
     formatValue: (value) => `${value.toFixed(1)}°C`,
     yAxisDomain: ["auto", "auto"],
   },
@@ -73,7 +74,8 @@ export const conditionConfig: Record<ConditionType, ConditionConfig> = {
       "conditions.pressure.fact3",
       "conditions.pressure.fact4",
     ],
-    getValueFromEntry: (entry) => entry.environmental_data.weather.pressure,
+    getValueFromEntry: (entry) =>
+      entry.environmental_data.weather?.pressure ?? null,
     formatValue: (value) => `${value} hPa`,
     yAxisDomain: ["auto", "auto"],
   },
@@ -91,7 +93,8 @@ export const conditionConfig: Record<ConditionType, ConditionConfig> = {
       "conditions.humidity.fact3",
       "conditions.humidity.fact4",
     ],
-    getValueFromEntry: (entry) => entry.environmental_data.weather.humidity,
+    getValueFromEntry: (entry) =>
+      entry.environmental_data.weather?.humidity ?? null,
     formatValue: (value) => `${value}%`,
     yAxisDomain: [0, 100],
   },
@@ -109,7 +112,8 @@ export const conditionConfig: Record<ConditionType, ConditionConfig> = {
       "conditions.wind.fact3",
       "conditions.wind.fact4",
     ],
-    getValueFromEntry: (entry) => entry.environmental_data.weather.wind_speed,
+    getValueFromEntry: (entry) =>
+      entry.environmental_data.weather?.wind_speed ?? null,
     formatValue: (value) => `${value.toFixed(1)} m/s`,
     yAxisDomain: [0, "auto"],
   },
@@ -146,7 +150,8 @@ export const conditionConfig: Record<ConditionType, ConditionConfig> = {
       "conditions.geomagnetic.fact3",
       "conditions.geomagnetic.fact4",
     ],
-    getValueFromEntry: (entry) => entry.environmental_data.geomagnetic.kp_index,
+    getValueFromEntry: (entry) =>
+      entry.environmental_data.geomagnetic?.kp_index ?? null,
     formatValue: (value) => `Kp ${value}`,
     yAxisDomain: [0, 9],
   },
@@ -165,6 +170,7 @@ export const conditionConfig: Record<ConditionType, ConditionConfig> = {
       "conditions.solar.fact4",
     ],
     getValueFromEntry: (entry) => {
+      if (!entry.environmental_data.solar) return null;
       const flareProb = entry.environmental_data.solar.flare_probability_24h;
       return flareProb !== null ? flareProb : null;
     },
@@ -265,25 +271,29 @@ interface CurrentValueResult {
  */
 export function getCurrentValue(
   type: ConditionType,
-  data: import("@/types").EnvironmentalData
+  data: import("@/types").EnvironmentalData,
 ): CurrentValueResult | null {
   switch (type) {
     case "temperature":
+      if (!data.weather) return null;
       return {
         value: data.weather.temperature,
         extra: `Feels like ${data.weather.feels_like}°C`,
       };
     case "pressure":
+      if (!data.weather) return null;
       return {
         value: data.weather.pressure,
         trend: data.weather.pressure_trend,
       };
     case "humidity":
+      if (!data.weather) return null;
       return {
         value: data.weather.humidity,
         extra: data.weather.weather_description,
       };
     case "wind":
+      if (!data.weather) return null;
       return {
         value: data.weather.wind_speed,
       };
@@ -293,15 +303,19 @@ export function getCurrentValue(
         extra: `${data.lunar.phase_name} - ${data.lunar.distance_trend}`,
       };
     case "geomagnetic":
+      if (!data.geomagnetic) return null;
       return {
         value: data.geomagnetic.kp_index,
         extra: data.geomagnetic.kp_label,
       };
     case "solar":
+      if (!data.solar) return null;
       if (data.solar.flare_probability_24h !== null) {
         return {
           value: data.solar.flare_probability_24h,
-          extra: data.solar.xray_class ? `X-ray class: ${data.solar.xray_class}` : undefined,
+          extra: data.solar.xray_class
+            ? `X-ray class: ${data.solar.xray_class}`
+            : undefined,
         };
       }
       return null;
@@ -309,8 +323,12 @@ export function getCurrentValue(
       if (data.tidal) {
         return {
           value: data.tidal.current_height_m,
-          trend: data.tidal.tidal_phase === "rising" ? "rising" : 
-                 data.tidal.tidal_phase === "falling" ? "falling" : "stable",
+          trend:
+            data.tidal.tidal_phase === "rising"
+              ? "rising"
+              : data.tidal.tidal_phase === "falling"
+                ? "falling"
+                : "stable",
           extra: `Next high: ${data.tidal.next_high}, Next low: ${data.tidal.next_low}`,
         };
       }

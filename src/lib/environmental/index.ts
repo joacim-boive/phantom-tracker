@@ -33,7 +33,7 @@ export async function fetchAllEnvironmentalData(
     solar,
     tidal,
     temporal,
-    location_name: weather.location_name,
+    location_name: weather?.location_name ?? null,
   };
 }
 

@@ -35,10 +35,10 @@ export interface CreatePainEntry {
 
 // Environmental data types
 export interface EnvironmentalData {
-  weather: WeatherData;
+  weather: WeatherData | null;
   lunar: LunarData;
-  geomagnetic: GeomagneticData;
-  solar: SolarData;
+  geomagnetic: GeomagneticData | null;
+  solar: SolarData | null;
   tidal: TidalData | null;
   temporal: TemporalData;
   location_name: string | null;

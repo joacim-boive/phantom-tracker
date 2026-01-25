@@ -25,10 +25,14 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
 
     // Analyze pressure correlation
     const lowPressureEntries = entries.filter(
-      (e) => e.environmental_data.weather.pressure < 1010,
+      (e) =>
+        e.environmental_data.weather?.pressure !== undefined &&
+        e.environmental_data.weather.pressure < 1010,
     );
     const highPressureEntries = entries.filter(
-      (e) => e.environmental_data.weather.pressure >= 1010,
+      (e) =>
+        e.environmental_data.weather?.pressure !== undefined &&
+        e.environmental_data.weather.pressure >= 1010,
     );
 
     if (lowPressureEntries.length >= 3 && highPressureEntries.length >= 3) {
@@ -90,10 +94,14 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
 
     // Analyze geomagnetic activity
     const activeGeoEntries = entries.filter(
-      (e) => e.environmental_data.geomagnetic.kp_index >= 4,
+      (e) =>
+        e.environmental_data.geomagnetic?.kp_index !== undefined &&
+        e.environmental_data.geomagnetic.kp_index >= 4,
     );
     const quietGeoEntries = entries.filter(
-      (e) => e.environmental_data.geomagnetic.kp_index < 4,
+      (e) =>
+        e.environmental_data.geomagnetic?.kp_index !== undefined &&
+        e.environmental_data.geomagnetic.kp_index < 4,
     );
 
     if (activeGeoEntries.length >= 2 && quietGeoEntries.length >= 3) {
@@ -119,7 +127,7 @@ export function InsightCards({ entries, isLoading }: InsightCardsProps) {
 
     // Analyze pressure trend
     const fallingPressureEntries = entries.filter(
-      (e) => e.environmental_data.weather.pressure_trend === "falling",
+      (e) => e.environmental_data.weather?.pressure_trend === "falling",
     );
     if (fallingPressureEntries.length >= 3) {
       const avgFallingPain =

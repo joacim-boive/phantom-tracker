@@ -10,6 +10,7 @@ import type { EnvironmentalData } from "@/types";
 import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import {
+  AlertCircle,
   Cloud,
   Droplets,
   Gauge,
@@ -76,6 +77,42 @@ function ConditionCardItem({
         )}
       </motion.div>
     </Link>
+  );
+}
+
+function ConditionCardError({
+  icon: Icon,
+  label,
+  colorClass,
+  bgClass,
+  t,
+}: {
+  icon: LucideIcon;
+  label: string;
+  colorClass: string;
+  bgClass: string;
+  t: (key: string) => string;
+}) {
+  return (
+    <div
+      className={cn(
+        "p-3 rounded-xl space-y-1",
+        "border border-destructive/20",
+        bgClass,
+      )}
+    >
+      <div className={cn("flex items-center gap-2", colorClass)}>
+        <Icon className='w-4 h-4 shrink-0' />
+        <span className='text-xs font-medium'>{label}</span>
+      </div>
+      <div className='flex items-center gap-2 text-destructive'>
+        <AlertCircle className='w-4 h-4' />
+        <span className='text-sm font-medium'>
+          {t("conditions.noCurrentData")}
+        </span>
+      </div>
+      <div className='text-xs text-muted-foreground'>{t("common.error")}</div>
+    </div>
   );
 }
 
@@ -147,76 +184,125 @@ export function CurrentConditions({ data, isLoading }: CurrentConditionsProps) {
           animate='visible'
         >
           {/* Temperature */}
-          <motion.div variants={itemVariants}>
-            <ConditionCardItem
-              type='temperature'
-              icon={Thermometer}
-              label={t("weather.temperature")}
-              value={`${weather.temperature}°C`}
-              subValue={`${t("weather.feelsLike")} ${weather.feels_like}°C`}
-              colorClass='text-weather'
-              bgClass='bg-weather/10'
-            />
-          </motion.div>
+          {weather ? (
+            <motion.div variants={itemVariants}>
+              <ConditionCardItem
+                type='temperature'
+                icon={Thermometer}
+                label={t("weather.temperature")}
+                value={`${weather.temperature}°C`}
+                subValue={`${t("weather.feelsLike")} ${weather.feels_like}°C`}
+                colorClass='text-weather'
+                bgClass='bg-weather/10'
+              />
+            </motion.div>
+          ) : (
+            <motion.div variants={itemVariants}>
+              <ConditionCardError
+                icon={Thermometer}
+                label={t("weather.temperature")}
+                colorClass='text-weather'
+                bgClass='bg-weather/10'
+                t={t}
+              />
+            </motion.div>
+          )}
 
           {/* Pressure */}
-          <motion.div variants={itemVariants}>
-            <ConditionCardItem
-              type='pressure'
-              icon={Gauge}
-              label={t("weather.pressure")}
-              value={weather.pressure}
-              subValue={
-                <span className='flex items-center gap-1'>
-                  <span
-                    className={cn(
-                      weather.pressure_trend === "rising" && "text-emerald-500",
-                      weather.pressure_trend === "falling" && "text-rose-500",
-                    )}
-                  >
-                    {weather.pressure_trend === "rising"
-                      ? "↑"
-                      : weather.pressure_trend === "falling"
-                        ? "↓"
-                        : "→"}
+          {weather ? (
+            <motion.div variants={itemVariants}>
+              <ConditionCardItem
+                type='pressure'
+                icon={Gauge}
+                label={t("weather.pressure")}
+                value={weather.pressure}
+                subValue={
+                  <span className='flex items-center gap-1'>
+                    <span
+                      className={cn(
+                        weather.pressure_trend === "rising" &&
+                          "text-emerald-500",
+                        weather.pressure_trend === "falling" && "text-rose-500",
+                      )}
+                    >
+                      {weather.pressure_trend === "rising"
+                        ? "↑"
+                        : weather.pressure_trend === "falling"
+                          ? "↓"
+                          : "→"}
+                    </span>
+                    {t(`weather.${weather.pressure_trend}`)} hPa
                   </span>
-                  {t(`weather.${weather.pressure_trend}`)} hPa
-                </span>
-              }
-              colorClass='text-weather'
-              bgClass='bg-weather/10'
-            />
-          </motion.div>
+                }
+                colorClass='text-weather'
+                bgClass='bg-weather/10'
+              />
+            </motion.div>
+          ) : (
+            <motion.div variants={itemVariants}>
+              <ConditionCardError
+                icon={Gauge}
+                label={t("weather.pressure")}
+                colorClass='text-weather'
+                bgClass='bg-weather/10'
+                t={t}
+              />
+            </motion.div>
+          )}
 
           {/* Humidity */}
-          <motion.div variants={itemVariants}>
-            <ConditionCardItem
-              type='humidity'
-              icon={Droplets}
-              label={t("weather.humidity")}
-              value={`${weather.humidity}%`}
-              subValue={
-                <span className='capitalize'>
-                  {weather.weather_description}
-                </span>
-              }
-              colorClass='text-weather'
-              bgClass='bg-weather/10'
-            />
-          </motion.div>
+          {weather ? (
+            <motion.div variants={itemVariants}>
+              <ConditionCardItem
+                type='humidity'
+                icon={Droplets}
+                label={t("weather.humidity")}
+                value={`${weather.humidity}%`}
+                subValue={
+                  <span className='capitalize'>
+                    {weather.weather_description}
+                  </span>
+                }
+                colorClass='text-weather'
+                bgClass='bg-weather/10'
+              />
+            </motion.div>
+          ) : (
+            <motion.div variants={itemVariants}>
+              <ConditionCardError
+                icon={Droplets}
+                label={t("weather.humidity")}
+                colorClass='text-weather'
+                bgClass='bg-weather/10'
+                t={t}
+              />
+            </motion.div>
+          )}
 
           {/* Wind */}
-          <motion.div variants={itemVariants}>
-            <ConditionCardItem
-              type='wind'
-              icon={Wind}
-              label={t("weather.wind")}
-              value={weather.wind_speed}
-              subValue='m/s'
-              colorClass='text-weather'
-              bgClass='bg-weather/10'
-            />
-          </motion.div>
+          {weather ? (
+            <motion.div variants={itemVariants}>
+              <ConditionCardItem
+                type='wind'
+                icon={Wind}
+                label={t("weather.wind")}
+                value={weather.wind_speed}
+                subValue='m/s'
+                colorClass='text-weather'
+                bgClass='bg-weather/10'
+              />
+            </motion.div>
+          ) : (
+            <motion.div variants={itemVariants}>
+              <ConditionCardError
+                icon={Wind}
+                label={t("weather.wind")}
+                colorClass='text-weather'
+                bgClass='bg-weather/10'
+                t={t}
+              />
+            </motion.div>
+          )}
 
           {/* Lunar */}
           <motion.div variants={itemVariants}>
@@ -232,32 +318,56 @@ export function CurrentConditions({ data, isLoading }: CurrentConditionsProps) {
           </motion.div>
 
           {/* Geomagnetic */}
-          <motion.div variants={itemVariants}>
-            <ConditionCardItem
-              type='geomagnetic'
-              icon={Magnet}
-              label={t("geomagnetic.title")}
-              value={`Kp ${geomagnetic.kp_index}`}
-              subValue={geomagnetic.kp_label}
-              colorClass='text-geomagnetic'
-              bgClass='bg-geomagnetic/10'
-              valueColorClass={getKpColorClass(geomagnetic.kp_index)}
-            />
-          </motion.div>
+          {geomagnetic ? (
+            <motion.div variants={itemVariants}>
+              <ConditionCardItem
+                type='geomagnetic'
+                icon={Magnet}
+                label={t("geomagnetic.title")}
+                value={`Kp ${geomagnetic.kp_index}`}
+                subValue={geomagnetic.kp_label}
+                colorClass='text-geomagnetic'
+                bgClass='bg-geomagnetic/10'
+                valueColorClass={getKpColorClass(geomagnetic.kp_index)}
+              />
+            </motion.div>
+          ) : (
+            <motion.div variants={itemVariants}>
+              <ConditionCardError
+                icon={Magnet}
+                label={t("geomagnetic.title")}
+                colorClass='text-geomagnetic'
+                bgClass='bg-geomagnetic/10'
+                t={t}
+              />
+            </motion.div>
+          )}
 
           {/* Solar */}
-          <motion.div variants={itemVariants}>
-            <ConditionCardItem
-              type='solar'
-              icon={Sun}
-              label={t("solar.title")}
-              value={solar.xray_flux ?? "N/A"}
-              subValue='X-ray class'
-              colorClass='text-solar'
-              bgClass='bg-solar/10'
-              valueColorClass={getSolarColorClass(solar.xray_class)}
-            />
-          </motion.div>
+          {solar ? (
+            <motion.div variants={itemVariants}>
+              <ConditionCardItem
+                type='solar'
+                icon={Sun}
+                label={t("solar.title")}
+                value={solar.xray_flux ?? "N/A"}
+                subValue='X-ray class'
+                colorClass='text-solar'
+                bgClass='bg-solar/10'
+                valueColorClass={getSolarColorClass(solar.xray_class)}
+              />
+            </motion.div>
+          ) : (
+            <motion.div variants={itemVariants}>
+              <ConditionCardError
+                icon={Sun}
+                label={t("solar.title")}
+                colorClass='text-solar'
+                bgClass='bg-solar/10'
+                t={t}
+              />
+            </motion.div>
+          )}
 
           {/* Tidal (if available) */}
           {tidal && (

@@ -50,12 +50,14 @@ export function PressureCorrelation({
       return { chartData: [], correlation: 0, avgPressure: 1013 };
     }
 
-    const data = entries.map((entry) => ({
-      pressure: entry.environmental_data.weather.pressure,
-      painLevel: entry.pain_level,
-      date: entry.created_at,
-      color: getPainColor(entry.pain_level),
-    }));
+    const data = entries
+      .filter((entry) => entry.environmental_data.weather !== null)
+      .map((entry) => ({
+        pressure: entry.environmental_data.weather!.pressure,
+        painLevel: entry.pain_level,
+        date: entry.created_at,
+        color: getPainColor(entry.pain_level),
+      }));
 
     // Calculate simple correlation coefficient
     const n = data.length;

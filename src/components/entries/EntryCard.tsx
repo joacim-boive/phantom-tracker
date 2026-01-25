@@ -18,6 +18,7 @@ import type { PainEntry } from "@/types";
 import { format, isToday, isYesterday } from "date-fns";
 import { motion } from "framer-motion";
 import {
+  AlertCircle,
   ChevronDown,
   ChevronUp,
   Cloud,
@@ -96,9 +97,11 @@ export function EntryCard({ entry, onEdit, onDelete }: EntryCardProps) {
                   <span className='font-medium truncate'>
                     {entry.pain_point_name ?? t("footRegions.arch")}
                   </span>
-                  <Badge variant='secondary' className='shrink-0'>
-                    {Math.round(weather.temperature)}°C
-                  </Badge>
+                  {weather && (
+                    <Badge variant='secondary' className='shrink-0'>
+                      {Math.round(weather.temperature)}°C
+                    </Badge>
+                  )}
                 </div>
                 <div className='text-sm text-muted-foreground'>
                   {formatDate(entry.created_at)}
@@ -106,10 +109,12 @@ export function EntryCard({ entry, onEdit, onDelete }: EntryCardProps) {
               </div>
 
               {/* Quick weather icons */}
-              <div className='flex items-center gap-1 text-muted-foreground'>
-                <Cloud className='w-4 h-4' />
-                <span className='text-xs'>{weather.pressure}</span>
-              </div>
+              {weather && (
+                <div className='flex items-center gap-1 text-muted-foreground'>
+                  <Cloud className='w-4 h-4' />
+                  <span className='text-xs'>{weather.pressure}</span>
+                </div>
+              )}
 
               {/* Expand button */}
               <Button
@@ -140,46 +145,55 @@ export function EntryCard({ entry, onEdit, onDelete }: EntryCardProps) {
                 {/* Environmental data grid */}
                 <div className='grid grid-cols-3 gap-3 text-sm'>
                   {/* Weather */}
-                  <div className='space-y-1'>
-                    <div className='flex items-center gap-1 text-weather'>
-                      <Thermometer className='w-4 h-4' />
-                      <span className='font-medium'>
-                        {t("weather.temperature")}
-                      </span>
-                    </div>
-                    <div className='text-muted-foreground'>
-                      {weather.temperature}°C ({weather.weather_condition})
-                    </div>
-                  </div>
+                  {weather ? (
+                    <>
+                      <div className='space-y-1'>
+                        <div className='flex items-center gap-1 text-weather'>
+                          <Thermometer className='w-4 h-4' />
+                          <span className='font-medium'>
+                            {t("weather.temperature")}
+                          </span>
+                        </div>
+                        <div className='text-muted-foreground'>
+                          {weather.temperature}°C ({weather.weather_condition})
+                        </div>
+                      </div>
 
-                  {/* Pressure */}
-                  <div className='space-y-1'>
-                    <div className='flex items-center gap-1 text-weather'>
-                      <Gauge className='w-4 h-4' />
-                      <span className='font-medium'>
-                        {t("weather.pressure")}
-                      </span>
-                    </div>
-                    <div className='text-muted-foreground'>
-                      {weather.pressure} hPa
-                      <span className='text-xs ml-1'>
-                        ({t(`weather.${weather.pressure_trend}`)})
-                      </span>
-                    </div>
-                  </div>
+                      {/* Pressure */}
+                      <div className='space-y-1'>
+                        <div className='flex items-center gap-1 text-weather'>
+                          <Gauge className='w-4 h-4' />
+                          <span className='font-medium'>
+                            {t("weather.pressure")}
+                          </span>
+                        </div>
+                        <div className='text-muted-foreground'>
+                          {weather.pressure} hPa
+                          <span className='text-xs ml-1'>
+                            ({t(`weather.${weather.pressure_trend}`)})
+                          </span>
+                        </div>
+                      </div>
 
-                  {/* Humidity */}
-                  <div className='space-y-1'>
-                    <div className='flex items-center gap-1 text-weather'>
-                      <Cloud className='w-4 h-4' />
-                      <span className='font-medium'>
-                        {t("weather.humidity")}
-                      </span>
+                      {/* Humidity */}
+                      <div className='space-y-1'>
+                        <div className='flex items-center gap-1 text-weather'>
+                          <Cloud className='w-4 h-4' />
+                          <span className='font-medium'>
+                            {t("weather.humidity")}
+                          </span>
+                        </div>
+                        <div className='text-muted-foreground'>
+                          {weather.humidity}%
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className='col-span-3 flex items-center gap-2 text-destructive text-sm'>
+                      <AlertCircle className='w-4 h-4' />
+                      <span>{t("conditions.noCurrentData")}</span>
                     </div>
-                    <div className='text-muted-foreground'>
-                      {weather.humidity}%
-                    </div>
-                  </div>
+                  )}
 
                   {/* Lunar */}
                   <div className='space-y-1'>
@@ -193,17 +207,19 @@ export function EntryCard({ entry, onEdit, onDelete }: EntryCardProps) {
                   </div>
 
                   {/* Geomagnetic */}
-                  <div className='space-y-1'>
-                    <div className='flex items-center gap-1 text-geomagnetic'>
-                      <Magnet className='w-4 h-4' />
-                      <span className='font-medium'>
-                        {t("geomagnetic.title")}
-                      </span>
+                  {geomagnetic && (
+                    <div className='space-y-1'>
+                      <div className='flex items-center gap-1 text-geomagnetic'>
+                        <Magnet className='w-4 h-4' />
+                        <span className='font-medium'>
+                          {t("geomagnetic.title")}
+                        </span>
+                      </div>
+                      <div className='text-muted-foreground'>
+                        Kp {geomagnetic.kp_index} ({geomagnetic.kp_label})
+                      </div>
                     </div>
-                    <div className='text-muted-foreground'>
-                      Kp {geomagnetic.kp_index} ({geomagnetic.kp_label})
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* Actions */}
